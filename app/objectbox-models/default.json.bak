@@ -1,0 +1,307 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:7260133166795945563",
+      "lastPropertyId": "9:3652151183467169498",
+      "name": "ObWorkstation",
+      "properties": [
+        {
+          "id": "1:4624781455953031069",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:3120723291974922937",
+          "name": "uniqueId",
+          "type": 9
+        },
+        {
+          "id": "3:9155636110894767513",
+          "name": "chefId",
+          "type": 9
+        },
+        {
+          "id": "4:3167092057215366352",
+          "name": "kitchenId",
+          "indexId": "2:5444805996633768939",
+          "type": 11,
+          "flags": 520,
+          "relationTarget": "ObStKitchen"
+        },
+        {
+          "id": "5:3892475134385096697",
+          "name": "info",
+          "type": 9
+        },
+        {
+          "id": "9:3652151183467169498",
+          "name": "kitchen_id",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "2:8853345711491957392",
+      "lastPropertyId": "15:8977895656339378172",
+      "name": "ObAddress",
+      "properties": [
+        {
+          "id": "1:5597484398621783214",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:3953280406361813445",
+          "name": "administrativeArea",
+          "type": 9
+        },
+        {
+          "id": "3:3005997267038572307",
+          "name": "completion",
+          "type": 9
+        },
+        {
+          "id": "4:7237330339136786238",
+          "name": "isoNationCode",
+          "type": 9
+        },
+        {
+          "id": "5:9202485546270895575",
+          "name": "latitude",
+          "type": 9
+        },
+        {
+          "id": "6:1512465502700360855",
+          "name": "longitude",
+          "type": 9
+        },
+        {
+          "id": "7:5689153498453168370",
+          "name": "locality",
+          "type": 9
+        },
+        {
+          "id": "8:3580263274315406785",
+          "name": "nation",
+          "type": 9
+        },
+        {
+          "id": "9:7248331067337180540",
+          "name": "postalCode",
+          "type": 9
+        },
+        {
+          "id": "10:1301966534920420878",
+          "name": "subAdministrativeArea",
+          "type": 9
+        },
+        {
+          "id": "11:1046345407884190785",
+          "name": "subLocality",
+          "type": 9
+        },
+        {
+          "id": "12:3546695504690491439",
+          "name": "thoroughfare",
+          "type": 9
+        },
+        {
+          "id": "13:7699241917318295944",
+          "name": "subThoroughfare",
+          "type": 9
+        },
+        {
+          "id": "14:4253612986944441229",
+          "name": "floor",
+          "type": 9
+        },
+        {
+          "id": "15:8977895656339378172",
+          "name": "plusCode",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "3:4692696224361859915",
+      "lastPropertyId": "3:5324515105478982173",
+      "name": "ObStKitchen",
+      "properties": [
+        {
+          "id": "1:1371854845706750972",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:7990386250304734506",
+          "name": "info",
+          "type": 9
+        },
+        {
+          "id": "3:5324515105478982173",
+          "name": "addressId",
+          "indexId": "1:5709210488287497308",
+          "type": 11,
+          "flags": 520,
+          "relationTarget": "ObAddress"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "4:1833473573057330240",
+      "lastPropertyId": "4:9200579482588724786",
+      "name": "ObDiningWay",
+      "properties": [
+        {
+          "id": "1:33963730699452988",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:773144484459847356",
+          "name": "spotId",
+          "type": 6
+        },
+        {
+          "id": "3:5633401783842334688",
+          "name": "sequence",
+          "type": 5
+        },
+        {
+          "id": "4:9200579482588724786",
+          "name": "optionText",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "5:3887098244681383627",
+      "lastPropertyId": "8:6612736689910522455",
+      "name": "ObMenuItem",
+      "properties": [
+        {
+          "id": "1:5792023461297208155",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:6580419330462646984",
+          "name": "spotId",
+          "type": 6
+        },
+        {
+          "id": "3:3681512353409908535",
+          "name": "sequence",
+          "type": 5
+        },
+        {
+          "id": "4:6961526492491077120",
+          "name": "nameText",
+          "type": 9
+        },
+        {
+          "id": "5:879936921597750860",
+          "name": "introText",
+          "type": 9
+        },
+        {
+          "id": "6:771325098097832615",
+          "name": "price",
+          "type": 8
+        },
+        {
+          "id": "7:4579433599687959924",
+          "name": "photo",
+          "type": 9
+        },
+        {
+          "id": "8:6612736689910522455",
+          "name": "quota",
+          "type": 5
+        }
+      ],
+      "relations": [
+        {
+          "id": "1:7167093476402795869",
+          "name": "options",
+          "targetId": "6:3142010560990719705"
+        }
+      ]
+    },
+    {
+      "id": "6:3142010560990719705",
+      "lastPropertyId": "5:3013366808928056398",
+      "name": "ObOption",
+      "properties": [
+        {
+          "id": "1:6050578988507350986",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:1991127574900014293",
+          "name": "spotId",
+          "type": 6
+        },
+        {
+          "id": "3:9135860866483838760",
+          "name": "sequence",
+          "type": 5
+        },
+        {
+          "id": "4:8203195250910810287",
+          "name": "price",
+          "type": 8
+        },
+        {
+          "id": "5:3013366808928056398",
+          "name": "titleText",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "7:183360435804768581",
+      "lastPropertyId": "1:5261681897613812122",
+      "name": "ObStorehouse",
+      "properties": [
+        {
+          "id": "1:5261681897613812122",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "7:183360435804768581",
+  "lastIndexId": "2:5444805996633768939",
+  "lastRelationId": "1:7167093476402795869",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [
+    2798831145241263593,
+    1792272384649233170,
+    8982271163079324626
+  ],
+  "retiredRelationUids": [],
+  "version": 1
+}
