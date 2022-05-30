@@ -1,7 +1,19 @@
 package com.cartoonhero.privatekitchen_android.props.entities
 
+data class Workstation(
+    val uniqueId: String?,
+    val chefId: String?,
+    val kitchenId: String?,
+    var info: StationInfo? = StationInfo(),
+    var kitchen: StKitchen? = StKitchen(),
+//    var menu: Template?
+)
 data class StationInfo(
     var chef: String? = ""
+)
+data class StKitchen(
+    var info: KitchenInfo? = KitchenInfo(),
+    var address: GQAddress? = GQAddress()
 )
 data class Orderer(
     val name: String?,
