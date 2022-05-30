@@ -40,7 +40,7 @@ data class ObOrderItem(
     @Id
     var id: Long = 0,
     var pagination: Int? = 0,
-    var categoryId: String?,
+    var category_id: String? = "",
     var quantity: Int? = 0
 ) {
     lateinit var item: ToOne<ObMenuItem>
