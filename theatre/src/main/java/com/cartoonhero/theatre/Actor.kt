@@ -34,8 +34,8 @@ abstract class Actor {
     fun start() {
         if (!scope.isActive) startScope()
     }
-    fun tell(_plot: () -> Unit) {
-        portray(Plot(_plot))
+    fun tell(story: () -> Unit) {
+        portray(Plot(story))
     }
     fun cancel() {
         if (scope.isActive) scope.cancel()
