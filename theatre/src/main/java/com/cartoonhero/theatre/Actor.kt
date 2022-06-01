@@ -8,12 +8,13 @@ import kotlin.coroutines.EmptyCoroutineContext
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
 abstract class Actor {
-    private interface Narrative
     private val scenarist = Scenarist()
     private val scope = CoroutineScope(Dispatchers.Default + Job())
+
+    private interface Narrative
     private data class Plot(
         val act: () -> Unit
-    ): Narrative
+    ) : Narrative
 
     init {
         startScope()
@@ -21,22 +22,25 @@ abstract class Actor {
 
     private fun startScope() = scope.launch {
         val actor = actor<Narrative>(scope.coroutineContext) {
-            consumeEach { trope ->
-                when(trope) {
-                    is Plot -> trope.act()
+            consumeEach { plot ->
+                when (plot) {
+                    is Plot -> plot.act()
                 }
             }
         }
         scenarist.writings.collect(actor::send)
     }
+
     private fun portray(narrative: Narrative) = scenarist.portray(narrative)
 
     fun start() {
         if (!scope.isActive) startScope()
     }
+
     fun tell(story: () -> Unit) {
         portray(Plot(story))
     }
+
     fun cancel() {
         if (scope.isActive) scope.cancel()
     }
