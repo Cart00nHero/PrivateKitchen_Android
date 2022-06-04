@@ -20,7 +20,7 @@ class Haversine {
         val maxLat = location.latitude + dLat
         val minLat = location.latitude - dLat
         val maxLng = location.longitude + dLng
-        val minLng = location.longitude-dLng
+        val minLng = location.longitude - dLng
 
         return Boundary(maxLat,maxLng,minLat,minLng)
     }
