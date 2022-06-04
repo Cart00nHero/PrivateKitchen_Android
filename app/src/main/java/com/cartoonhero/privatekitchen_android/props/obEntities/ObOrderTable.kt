@@ -3,6 +3,7 @@ package com.cartoonhero.privatekitchen_android.props.obEntities
 import com.cartoonhero.privatekitchen_android.props.entities.OrderInfo
 import com.cartoonhero.privatekitchen_android.props.entities.Orderer
 import com.cartoonhero.privatekitchen_android.props.inlineTools.toEntity
+import io.objectbox.annotation.Backlink
 import io.objectbox.annotation.Entity
 import io.objectbox.annotation.Id
 import io.objectbox.relation.ToMany
@@ -25,6 +26,7 @@ data class ObOrderForm(
     var info: String = ""
 ) {
     lateinit var diningWay: ToOne<ObDiningWay>
+    @Backlink(to = "toForm")
     lateinit var items: ToMany<ObOrderItem>
 }
 fun ObOrderForm.beOrderer(): Orderer {
@@ -40,10 +42,12 @@ data class ObOrderItem(
     @Id
     var id: Long = 0,
     var pagination: Int? = 0,
-    var categoryId: String?,
+    var category_id: String? = "",
     var quantity: Int? = 0
 ) {
     lateinit var item: ToOne<ObMenuItem>
+    lateinit var toForm: ToOne<ObOrderForm>
+    @Backlink(to = "toOrder")
     lateinit var customize: ToMany<ObChoice>
 }
 @Entity
@@ -54,4 +58,5 @@ data class ObChoice(
     var cost: Double? = 0.0
 ) {
     lateinit var choices: ToMany<ObOption>
+    lateinit var toOrder: ToOne<ObOrderItem>
 }

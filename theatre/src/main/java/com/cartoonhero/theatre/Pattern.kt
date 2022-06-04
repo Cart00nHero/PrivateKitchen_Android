@@ -8,7 +8,7 @@ import kotlin.coroutines.CoroutineContext
 
 @ExperimentalCoroutinesApi
 @ObsoleteCoroutinesApi
-abstract class Scenario: Actor(), CoroutineScope {
+abstract class Pattern(private val attach: Scenario): Actor(), CoroutineScope {
     private val job = Job()
     override val coroutineContext: CoroutineContext
         get() = job

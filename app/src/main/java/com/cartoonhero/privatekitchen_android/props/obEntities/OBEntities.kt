@@ -85,6 +85,7 @@ data class ObMenuItem(
     var quota: Int = 0
 ) {
     lateinit var options: ToMany<ObOption>
+    lateinit var toCategory: ToOne<ObCategory>
 }
 fun ObMenuItem.beName():LocalizedText {
     val theText = this.nameText.toEntity<LocalizedText>()
