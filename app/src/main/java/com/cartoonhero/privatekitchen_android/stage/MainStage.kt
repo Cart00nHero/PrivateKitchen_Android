@@ -3,6 +3,7 @@ package com.cartoonhero.privatekitchen_android.stage
 import android.os.Bundle
 import com.cartoonhero.privatekitchen_android.R
 import com.cartoonhero.privatekitchen_android.stage.scene.main.MainFragment
+import com.cartoonhero.theatre.SetDecorator
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 
