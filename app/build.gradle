@@ -32,13 +32,13 @@ android {
         jvmTarget = '1.8'
     }
     apollo {
-        service("operation") {
-            sourceFolder.set("operation")
-            packageName.set("operation")
+        service("Helios") {
+            sourceFolder.set("graphqlApollo/operation")
+            packageName.set("graphqlApollo.operation")
         }
-        service("kitchen") {
-            sourceFolder.set("kitchen")
-            packageName.set("kitchen")
+        service("Icarus") {
+            sourceFolder.set("graphqlApollo/client")
+            packageName.set("graphqlApollo.client")
         }
     }
 }
@@ -58,7 +58,6 @@ dependencies {
 
     // Apollo
     implementation("com.apollographql.apollo3:apollo-runtime:3.3.0")
-    implementation("com.apollographql.apollo:apollo-coroutines-support:2.5.11")
     // Coroutine
     def coroutine_version = "1.6.2"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutine_version"

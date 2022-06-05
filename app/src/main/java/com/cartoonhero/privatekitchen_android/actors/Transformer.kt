@@ -27,7 +27,7 @@ class Transformer: Actor() {
         }
         return actorJob.await()
     }
-    suspend inline fun <reified T> beToEntity(json: String): T? {
+    suspend inline fun <reified T> beJsonTo(json: String): T? {
         val actorJob = CompletableDeferred<T?>()
         tell {
             val jsonAdapter =
@@ -49,7 +49,7 @@ class Transformer: Actor() {
         }
         return actorJob.await()
     }
-    suspend inline fun <reified T> beJsonTo(json: String): Map<String,T>? {
+    suspend inline fun <reified T> beJsonToMap(json: String): Map<String,T>? {
         val actorJob = CompletableDeferred<Map<String,T>?>()
         tell {
             val type = Types.newParameterizedType(Map::class.java, String::class.java, T::class.java)
@@ -59,7 +59,7 @@ class Transformer: Actor() {
         }
         return actorJob.await()
     }
-    suspend inline fun <reified T> beMapTo(map: Map<String,T>): String {
+    suspend inline fun <reified T> beMapToJson(map: Map<String,T>): String {
         val actorJob = CompletableDeferred<String>()
         tell {
             val type = Types.newParameterizedType(Map::class.java, String::class.java, T::class.java)
@@ -85,7 +85,7 @@ class Transformer: Actor() {
         }
         return actorJob.await()
     }
-    suspend inline fun <reified T1, reified T2> beEntityTo(entity: T1): Map<String,T2>? {
+    suspend inline fun <reified T1, reified T2> beEntityToMap(entity: T1): Map<String,T2>? {
         val actorJob = CompletableDeferred<Map<String,T2>?>()
         tell {
             val fromAdapter =
