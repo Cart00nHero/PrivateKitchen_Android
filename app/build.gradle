@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-    id 'com.apollographql.apollo'
+    id("com.apollographql.apollo3").version("3.3.0")
     id("io.objectbox")
 }
 
@@ -32,16 +32,22 @@ android {
         jvmTarget = '1.8'
     }
     apollo {
-        // instruct the compiler to generate Kotlin models
-        generateKotlinModels.set(true)
+        service("Helios") {
+            sourceFolder.set("graphqlApollo/operation")
+            packageName.set("graphqlApollo.operation")
+        }
+        service("Icarus") {
+            sourceFolder.set("graphqlApollo/client")
+            packageName.set("graphqlApollo.client")
+        }
     }
 }
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'com.google.android.material:material:1.6.0'
+    implementation 'androidx.core:core-ktx:1.8.0'
+    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
@@ -51,8 +57,7 @@ dependencies {
     implementation project(path:':theatre')
 
     // Apollo
-    implementation("com.apollographql.apollo:apollo-runtime:$apollo_version")
-    implementation("com.apollographql.apollo:apollo-coroutines-support:$apollo_version")
+    implementation("com.apollographql.apollo3:apollo-runtime:3.3.0")
     // Coroutine
     def coroutine_version = "1.6.2"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutine_version"

@@ -1,19 +1,15 @@
-package com.cartoonhero.privatekitchen_android.stage
+package com.cartoonhero.theatre
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.cartoonhero.privatekitchen_android.props.inlineTools.addFragment
-import com.cartoonhero.privatekitchen_android.props.inlineTools.removeFragment
-import com.cartoonhero.privatekitchen_android.props.inlineTools.replaceFragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 
 open class SetDecorator: AppCompatActivity() {
     private var sceneIndex = 0
     private val sceneFlow = ArrayList<Fragment>()
     private var resourceId: Int = 0
 
-    fun setResourceId(resourceId: Int) {
-        this.resourceId = resourceId
-    }
     fun setOpening(scene: Fragment, resourceId: Int) {
         this.resourceId = resourceId
         if (sceneFlow.size > 0) {
@@ -40,13 +36,13 @@ open class SetDecorator: AppCompatActivity() {
             finish()
         }
     }
-    fun backTo(index: Int) {
+    fun goBackTo(index: Int) {
         if (sceneIndex > index) {
             replaceFragment(sceneFlow[index], resourceId)
             sceneFlow.dropLast( (sceneIndex-index) )
         }
     }
-    private fun currentScene(): Fragment{
+    private fun currentScene(): Fragment {
         return sceneFlow.last()
     }
     private fun clearFragmentBackStack() {
@@ -55,5 +51,27 @@ open class SetDecorator: AppCompatActivity() {
                 supportFragmentManager.beginTransaction().remove(fragment!!).commit()
             }
         }
+    }
+    private inline fun FragmentManager.inTransaction(func: FragmentTransaction.()-> FragmentTransaction) {
+        beginTransaction().func().commitNow()
+//    beginTransaction().func().commitAllowingStateLoss()
+    }
+    private fun AppCompatActivity.addFragment(fragment: Fragment, frameId: Int) {
+        supportFragmentManager.inTransaction {
+            add(frameId,fragment)
+        }
+    }
+    private fun AppCompatActivity.replaceFragment(fragment: Fragment, frameId: Int) {
+        supportFragmentManager.inTransaction {
+            replace(frameId,fragment)
+        }
+    }
+    private fun AppCompatActivity.removeFragment(fragment: Fragment) {
+        supportFragmentManager.inTransaction {
+            remove(fragment)
+        }
+    }
+    private fun AppCompatActivity.findFragment(containerId: Int): Fragment? {
+        return supportFragmentManager.findFragmentById(containerId)
     }
 }

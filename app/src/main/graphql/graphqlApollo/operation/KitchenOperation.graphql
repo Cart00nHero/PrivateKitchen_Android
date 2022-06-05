@@ -1,0 +1,388 @@
+#  Kitchen Operation Api
+
+# Workstation
+query FindWorkstation($uniqueId: String!) {
+  findWorkstation(uniqueId: $uniqueId) {
+    uniqueId chefId kitchenId
+    info {
+      chef
+    }
+    kitchen {
+      info {
+        name
+        phone
+      }
+      address {
+        completion
+        floor
+        latitude
+        longitude
+      }
+    }
+  }
+}
+query SearchMatchedWorkstations($queries: QueryWorkstation!) {
+  searchMatchedWorkstations(queries: $queries) {
+    uniqueId chefId kitchenId
+    info {chef}
+    kitchen {
+      info {
+        name
+        phone
+      }
+      address {
+        completion
+        floor
+        latitude
+        longitude
+      }
+    }
+    menu {
+      ownerId
+      pages{
+        pagination
+          categories {
+            spotId sequence
+            titleText{local}
+            items{
+              spotId sequence
+              nameText{local}
+              introText{local}
+              photo price quota
+              customizations {
+                spotId
+                sequence
+                price
+                titleText{local}
+              }
+            }
+          }
+# --------- category end -----------
+      }
+    }
+# --------- menu end -----------
+  }
+}
+query FindDashboard($stationId: String!) {
+  findDashboard(stationId: $stationId) {
+    ownerId closeTime
+    steps {
+      name
+      step
+    }
+  }
+}
+mutation CreateWorkstation($workstation: InputWorkstation!) {
+  createWorkstation(workstation: $workstation) {
+    uniqueId chefId kitchenId
+    info {
+      chef
+    }
+  }
+}
+mutation DeleteMatchedWorkstations($queries: QueryWorkstation!) {
+  deleteMatchedWorkstations(queries: $queries) {
+    uniqueId
+  }
+}
+mutation DeleteWorkstation($uniqueId: String!) {
+  deleteWorkstation(uniqueId: $uniqueId) {
+    uniqueId
+  }
+}
+mutation SaveWorkstationKitchen($kitchen: InputStKitchen!,$uniqueId: String!) {
+  saveWorkstationKitchen(kitchen: $kitchen,uniqueId: $uniqueId) {
+    kitchenId
+    info {
+      chef
+    }
+    kitchen {
+      info {
+        name
+        phone
+      }
+      address {
+        completion
+        floor
+        latitude
+        longitude
+      }
+    }
+  }
+}
+mutation UpdateDashboard($dashboard: InputDashboard!,$stationId: String!) {
+  updateDashboard(dashboard: $dashboard,stationId: $stationId) {
+    ownerId
+    steps {
+      name
+      step
+    }
+  }
+}
+mutation UpdateWorkstation($uniqueId: String!,$workstation: ModifyWorkstation!) {
+  updateWorkstation(uniqueId: $uniqueId,workstation: $workstation) {
+    chefId
+    kitchenId
+    uniqueId
+  }
+}
+# Storage
+query FindStorehouse($stationId: String!) {
+  findStorehouse(stationId: $stationId) {
+    ownerId
+    items { spotId sequence
+      nameText{local}
+      introText{local}
+      photo price
+      customizations {
+        spotId sequence price
+        titleText{local}
+      }
+    }
+    options {
+      spotId sequence price
+      titleText{local}
+    }
+    diningWays {
+      spotId
+      optionText{local}
+      editor {
+        titleText{local}
+        hintText{local}
+        input
+      }
+    }
+  }
+}
+query GetDiningWays($kitchenId: String!) {
+  getDiningWays(kitchenId: $kitchenId) {
+    spotId
+    optionText{local}
+    editor {
+      titleText{local}
+      hintText{local}
+      input
+    }
+  }
+}
+mutation UpdateStorehouse($stationId: String!,$storage:InputStorehouse!) {
+  updateStorehouse(stationId: $stationId, storage:$storage) {
+    ownerId
+  }
+}
+# Order
+query FindOrderForm($uniqueId: String!) {
+  findOrderForm(uniqueId: $uniqueId) {
+      uniqueId
+      items {
+        categoryId
+        pagination
+        quantity
+        item {
+          nameText {local}
+          price quota spotId
+        }
+        customize {
+          amount cost
+          choices {
+            titleText {local}
+            price sequence spotId
+        }
+      }
+    }
+  }
+}
+query SearchMatchedOrders($queries: QueryOrder!) {
+  searchMatchedOrders(queries: $queries) {
+    arrival kitchenId setUp state
+    uniqueId userId paid
+    orderer { name phone }
+    info { cost people arrived }
+    diningWay {
+      spotId
+      optionText {local}
+      editor {
+        titleText {local}
+        input spotId
+      }
+    }
+# ---------------- diningWay end ----------------------
+    items {
+      categoryId
+      pagination
+      quantity
+      item {
+        nameText {local}
+        price quota spotId
+      }
+      customize {
+        amount cost
+        choices {
+          titleText { local }
+          price sequence spotId
+        }
+      }
+    }
+# ---------------- items end ----------------------
+  }
+}
+query SearchTimeFrameOrders($startDate: DateTime,$endDate: DateTime) {
+  searchTimeFrameOrders(startDate: $startDate,endDate: $endDate) {
+    arrival kitchenId setUp state
+    uniqueId userId paid
+    orderer { name phone }
+    info { cost people arrived }
+    diningWay {
+      spotId
+      optionText {local}
+      editor {
+        titleText {local}
+        input spotId
+      }
+    }
+# ---------------- diningWay end ----------------------
+  }
+}
+query SearchMatchTimeOrders(
+$startDate: DateTime,$endDate: DateTime,$queries: QueryOrder!
+) {
+  searchMatchTimeOrders(
+  startDate: $startDate,endDate: $endDate,queries: $queries
+  ) {
+    arrival kitchenId setUp state
+    uniqueId userId paid
+    orderer { name phone }
+    info { cost people arrived }
+    diningWay {
+      spotId
+      optionText {local}
+      editor {
+        titleText {local}
+        input spotId
+      }
+    }
+# ---------------- diningWay end ----------------------
+  }
+}
+query SearchArrivalFrameOrders($period: TimePeriod!) {
+  searchArrivalFrameOrders(period: $period) {
+    arrival kitchenId setUp state
+    uniqueId userId paid
+    orderer { name phone }
+    info { cost people arrived }
+    diningWay {
+      spotId
+      optionText {local}
+      editor {
+        titleText {local}
+        input spotId
+      }
+    }
+# ---------------- diningWay end ----------------------
+  }
+}
+query SearchMatchArrivalOrders($period: TimePeriod! ,$queries: QueryOrder!) {
+  searchMatchArrivalOrders(period: $period, queries: $queries) {
+    arrival kitchenId setUp state
+    uniqueId userId paid
+    orderer { name phone }
+    info { cost people arrived }
+    diningWay {
+      spotId
+      optionText { local }
+      editor {
+        titleText { local }
+        input spotId
+      }
+    }
+# ---------------- diningWay end ----------------------
+  }
+}
+mutation CreateOrderForm($order: InputOrderForm!) {
+  createOrderForm(order: $order) {
+    uniqueId userId kitchenId arrival
+    setUp state
+    orderer {
+      name
+      phone
+    }
+    info { cost people arrived }
+    diningWay {
+      optionText {local}
+      editor {input}
+    }
+    items {
+      categoryId
+      pagination
+      item {
+        spotId
+        nameText {local}
+        price
+        quota
+      }
+      customize {
+        amount
+        cost
+        choices {
+          price
+          titleText {local}
+        }
+      }
+    }
+# ----------------items end----------------------
+  }
+}
+mutation DeleteMatchTimeForms(
+  $startDate: DateTime,$endDate: DateTime,$queries: QueryOrder!
+) {
+  deleteMatchTimeForms(
+    startDate: $startDate,endDate: $endDate,queries: $queries
+  ) {
+    uniqueId
+  }
+}
+mutation DeleteMatchedForms($queries: QueryOrder!) {
+  deleteMatchedForms(queries: $queries) {
+    uniqueId
+  }
+}
+mutation DeleteTimeFrameForms($startDate: DateTime,$endDate: DateTime) {
+  deleteTimeFrameForms(startDate: $startDate,endDate: $endDate) {
+    uniqueId
+  }
+}
+mutation UpdateMatchTimeForms(
+  $startDate: DateTime,$endDate: DateTime,
+  $modifies: ModifyOrder!,$queries: QueryOrder!
+) {
+  updateMatchTimeForms(
+    startDate: $startDate,endDate: $endDate,
+    modifies: $modifies,queries: $queries
+  ) {
+    arrival
+    setUp
+    state
+    uniqueId
+  }
+}
+mutation UpdateMatchedForms($modifies: ModifyOrder!,$queries: QueryOrder!) {
+  updateMatchedForms(modifies: $modifies,queries: $queries) {
+    arrival
+    setUp
+    state
+    uniqueId
+  }
+}
+
+mutation UpdateTimeFrameForms(
+  $startDate: DateTime,$endDate: DateTime,$modifies: ModifyOrder!
+) {
+  updateTimeFrameForms(
+    startDate: $startDate,endDate: $endDate,modifies: $modifies
+  ) {
+    arrival
+    setUp
+    state
+    uniqueId
+  }
+}

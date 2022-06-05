@@ -1,5 +1,9 @@
 package com.cartoonhero.privatekitchen_android.props.entities
 
+import com.apollographql.apollo3.api.Optional
+import graphqlApollo.operation.type.ModifyOrder
+import graphqlApollo.operation.type.QueryOrder
+
 data class Kitchen(
     val uniqueId: String?,
     var info: KitchenInfo? = KitchenInfo(),
@@ -45,4 +49,11 @@ data class GQPlace(
 )
 data class LocalizedText(
     var local: String? = ""
+)
+
+data class OrderTimeFrame(
+    var startDate: String?,
+    var endDate: String?,
+    var queries: QueryOrder?,
+    var modifies: ModifyOrder?
 )
