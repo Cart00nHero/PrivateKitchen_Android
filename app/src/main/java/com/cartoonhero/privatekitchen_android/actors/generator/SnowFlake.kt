@@ -18,7 +18,9 @@ class SnowFlake(private val machineId: Int) {
 
     init {
         if (machineId >= maxMachineId || machineId < 0) {
-            throw IllegalArgumentException("Machine Number must between 0 - ${maxMachineId - 1}")
+            throw IllegalArgumentException(
+                "Machine Number must between 0 - ${maxMachineId - 1}"
+            )
         }
     }
 
@@ -33,7 +35,9 @@ class SnowFlake(private val machineId: Int) {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun parse(alpha: String): SnowFlakeId {
-        val id = java.lang.Long.parseLong(alpha.lowercase(Locale.ROOT), alphaNumericBase)
+        val id = java.lang.Long.parseLong(
+            alpha.lowercase(Locale.ROOT), alphaNumericBase
+        )
         return parse(id)
     }
 
@@ -56,6 +60,7 @@ class SnowFlake(private val machineId: Int) {
         val id = nextId()
         return id.toString(alphaNumericBase)
     }
+
     @RequiresApi(Build.VERSION_CODES.O)
     private fun Long.toLocalDateTime(): LocalDateTime {
         return LocalDateTime.ofInstant(
@@ -63,6 +68,7 @@ class SnowFlake(private val machineId: Int) {
         )
     }
 }
+
 data class SnowFlakeId(
     val timestamp: LocalDateTime,
     val machineId: Int,

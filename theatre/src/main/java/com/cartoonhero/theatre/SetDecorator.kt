@@ -20,12 +20,12 @@ open class SetDecorator: AppCompatActivity() {
         addFragment(scene,resourceId)
         sceneFlow.add(0, scene)
     }
-    fun goForward(fragments: List<Fragment>) {
-        sceneIndex += fragments.size
-        sceneFlow.addAll(fragments)
-        replaceFragment(fragments.last(), resourceId)
+    fun forward(scenes: List<Fragment>) {
+        sceneIndex += scenes.size
+        sceneFlow.addAll(scenes)
+        replaceFragment(scenes.last(), resourceId)
     }
-    fun goBackward() {
+    fun backward() {
         if (sceneIndex > 0) {
             val currentFragment = sceneFlow[sceneIndex]
             val previousFragment = sceneFlow[sceneIndex-1]
@@ -52,7 +52,9 @@ open class SetDecorator: AppCompatActivity() {
             }
         }
     }
-    private inline fun FragmentManager.inTransaction(func: FragmentTransaction.()-> FragmentTransaction) {
+    private inline fun FragmentManager.inTransaction(
+        func: FragmentTransaction.()-> FragmentTransaction
+    ) {
         beginTransaction().func().commitNow()
 //    beginTransaction().func().commitAllowingStateLoss()
     }
