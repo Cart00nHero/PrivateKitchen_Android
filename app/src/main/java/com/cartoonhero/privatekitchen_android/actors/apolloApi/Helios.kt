@@ -43,7 +43,7 @@ class Helios(private val served: Scenario) : Actor() {
     private fun actSearchMatchedWorkstations(
         queries: QueryWorkstation,
         complete: (
-            ApiStatus, SearchMatchedWorkstationsQuery.Data?
+            ApiStatus, List<SearchMatchedWorkstationsQuery.SearchMatchedWorkstation?>?
         ) -> Unit
     ) {
         apiScope.launch {
@@ -55,7 +55,10 @@ class Helios(private val served: Scenario) : Actor() {
                         complete(ApiStatus.FAILED, null)
                     }
                     else -> {
-                        complete(ApiStatus.SUCCESS, response.data)
+                        complete(
+                            ApiStatus.SUCCESS,
+                            response.data?.searchMatchedWorkstations
+                        )
                     }
                 }
             }
@@ -591,7 +594,7 @@ class Helios(private val served: Scenario) : Actor() {
     fun beSearchMatchedWorkstations(
         queries: QueryWorkstation,
         complete: (
-            ApiStatus, SearchMatchedWorkstationsQuery.Data?
+            ApiStatus, List<SearchMatchedWorkstationsQuery.SearchMatchedWorkstation?>?
         ) -> Unit
     ) {
         tell { actSearchMatchedWorkstations(queries, complete) }

@@ -101,4 +101,21 @@ class Transformer: Actor() {
         }
         return actorJob.await()
     }
+    suspend inline fun <reified T1, reified T2> beListTo(from: List<T1>): List<T2>? {
+        val actorJob = CompletableDeferred<List<T2>?>()
+        tell {
+            val fromType = Types.newParameterizedType(
+                List::class.java, T1::class.java
+            )
+            val fromAdapter: JsonAdapter<List<T1>> = Moshi.Builder().build().adapter(fromType)
+            val json: String = fromAdapter.toJson(from)
+            val toType = Types.newParameterizedType(
+                List::class.java, T2::class.java
+            )
+            val toAdapter: JsonAdapter<List<T2>> = Moshi.Builder().build().adapter(toType)
+            val newList = toAdapter.fromJson(json)
+            actorJob.complete(newList)
+        }
+        return actorJob.await()
+    }
 }
