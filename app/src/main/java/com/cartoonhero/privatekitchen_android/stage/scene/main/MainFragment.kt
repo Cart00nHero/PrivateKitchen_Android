@@ -9,7 +9,6 @@ import com.cartoonhero.privatekitchen_android.R
 import com.cartoonhero.privatekitchen_android.stage.scenarios.MainScenario
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
-import org.reduxkotlin.StoreSubscription
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
 
@@ -30,8 +29,8 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        context?.let { director.beInitDb(it) }
-        lateinit var storeSubscription: StoreSubscription
+//        context?.let { director.beInitDb(it) }
+        director.beTestMethod()
     }
 
 }

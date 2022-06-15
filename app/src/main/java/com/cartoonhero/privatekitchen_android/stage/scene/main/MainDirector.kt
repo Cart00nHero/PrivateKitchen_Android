@@ -4,4 +4,5 @@ import android.content.Context
 
 interface MainDirector {
     fun beInitDb(context: Context)
+    fun beTestMethod()
 }
