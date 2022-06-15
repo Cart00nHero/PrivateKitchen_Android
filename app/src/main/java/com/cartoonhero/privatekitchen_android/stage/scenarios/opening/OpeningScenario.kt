@@ -2,19 +2,15 @@ package com.cartoonhero.privatekitchen_android.stage.scenarios.opening
 
 import android.content.Context
 import com.apollographql.apollo3.api.Optional
-import com.cartoonhero.privatekitchen_android.actors.Transformer
 import com.cartoonhero.privatekitchen_android.actors.apolloApi.ApiStatus
 import com.cartoonhero.privatekitchen_android.actors.apolloApi.Helios
 import com.cartoonhero.privatekitchen_android.actors.objBox.ObDb
 import com.cartoonhero.privatekitchen_android.props.entities.EnterListSource
 import com.cartoonhero.privatekitchen_android.props.entities.SignType
-import com.cartoonhero.privatekitchen_android.props.entities.Workstation
-import com.cartoonhero.privatekitchen_android.props.inlineTools.applyEdit
 import com.cartoonhero.privatekitchen_android.props.mainContext
 import com.cartoonhero.privatekitchen_android.props.sharedStorage
 import com.cartoonhero.privatekitchen_android.stage.scene.opening.OpeningDirector
 import com.cartoonhero.theatre.Scenario
-import graphqlApollo.operation.SearchMatchedWorkstationsQuery
 import graphqlApollo.operation.type.QueryWorkstation
 import kotlinx.coroutines.*
 
@@ -54,23 +50,13 @@ class OpeningScenario: Scenario(), OpeningDirector {
             when(status) {
                 ApiStatus.SUCCESS ->{
                     if (respArr != null && respArr.isNotEmpty()) {
-                        val foundSt = respArr.first()
                     }
                 }
-                ApiStatus.FAILED -> {}
+                ApiStatus.FAILED -> {
+                    print("beSearchMatchedWorkstations failed")
+                }
             }
         }
-//        Helios(this).beSearchMatchedWorkstations(query) { status, respArr ->
-//            when(status) {
-//                ApiStatus.SUCCESS ->{
-//                    if (respArr != null, && respArr)
-//                }
-//                ApiStatus.FAILED -> {}
-//            }
-//        }
-//        Helios(this).beSearchMatchedWorkstations(query) {
-//
-//        }
     }
 
 
