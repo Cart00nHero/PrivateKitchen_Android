@@ -12,18 +12,18 @@ import kotlinx.coroutines.*
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
 class MainScenario: Scenario(), MainDirector {
-    private fun actInitDb(context: Context) {
+    private fun actInitDb() {
         launch {
-            ObDb().beDebut(context)
+            ObDb().beDebut()
         }
     }
     private fun actTestMethod() {
     }
 
 
-    override fun beInitDb(context: Context) {
+    override fun beInitDb() {
         tell {
-            actInitDb(context)
+            actInitDb()
         }
     }
 

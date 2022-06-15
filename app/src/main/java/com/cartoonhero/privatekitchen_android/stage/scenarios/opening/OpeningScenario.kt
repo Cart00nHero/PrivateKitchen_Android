@@ -22,7 +22,7 @@ class OpeningScenario: Scenario(), OpeningDirector {
     private fun actShowTime() {
         launch {
             this@OpeningScenario.start()
-            ObDb().beDebut(mainContext)
+            ObDb().beDebut()
         }
     }
     private fun actBuildSource(complete: (List<EnterListSource>) -> Unit) {

@@ -13,8 +13,8 @@ import kotlinx.coroutines.ObsoleteCoroutinesApi
 class MainStage: SetDecorator() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.main_stage)
         mainContext = this
+        setContentView(R.layout.main_stage)
         if (savedInstanceState == null) {
             setOpening(MainFragment.newInstance(), R.id.container)
             /*
