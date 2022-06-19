@@ -22,7 +22,6 @@ import kotlinx.coroutines.*
 @ExperimentalCoroutinesApi
 @ObsoleteCoroutinesApi
 class OpeningScenario : Scenario(), OpeningDirector {
-
     private val archmage: Archmage by lazy {
         Archmage(this)
     }
@@ -46,9 +45,7 @@ class OpeningScenario : Scenario(), OpeningDirector {
                 EnterListSource("Sign With Apple", SignType.Apple),
                 EnterListSource("Facebook", SignType.Facebook)
             )
-            CoroutineScope(Dispatchers.Main).launch {
-                archmage.beChant(LiveScene(source))
-            }
+            archmage.beChant(LiveScene(source))
         } else {
             findMyWorkstation(uid)
         }
@@ -117,9 +114,7 @@ class OpeningScenario : Scenario(), OpeningDirector {
                                 type = SignType.CreateSt
                             )
                         )
-                        CoroutineScope(Dispatchers.Main).launch {
-                            archmage.beChant(LiveScene(source))
-                        }
+                        archmage.beChant(LiveScene(source))
                     }
                 }
                 ApiStatus.FAILED -> {
@@ -135,9 +130,7 @@ class OpeningScenario : Scenario(), OpeningDirector {
         launch {
             val saved = transfer.beTransfer()
             if (saved != null) {
-                withContext(Dispatchers.Main) {
-                    archmage.beChant(LiveScene(prop = saved))
-                }
+                archmage.beChant(LiveScene(prop = saved))
             }
         }
     }
