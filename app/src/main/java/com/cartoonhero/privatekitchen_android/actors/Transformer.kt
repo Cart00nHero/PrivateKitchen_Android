@@ -44,7 +44,7 @@ class Transformer: Actor() {
             val jsonAdapter =
                 Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
                     .adapter(T::class.java)
-            val jsonStr: String = jsonAdapter.toJson(entity)
+            val jsonStr: String = jsonAdapter.toJson(entity) ?: ""
             actorJob.complete(jsonStr)
         }
         return actorJob.await()
