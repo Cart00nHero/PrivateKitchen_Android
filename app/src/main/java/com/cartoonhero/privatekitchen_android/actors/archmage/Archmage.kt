@@ -9,18 +9,20 @@ import org.reduxkotlin.createThreadSafeStore
 @ExperimentalCoroutinesApi
 @ObsoleteCoroutinesApi
 class Archmage(private val destination: Scenario): Actor() {
-    lateinit var teleporter: Teleporter
+    private var wayPoints: MutableList<Teleporter> = mutableListOf()
     private val wand = Teleportation.portal
     private val unsubscribe = wand.subscribe{ newState(wand.state) }
 
     private fun newState(state: AppState) {
         destination.tell {
-            teleporter.beNewState(state)
+            for (point in wayPoints) {
+                point.beNewState(state)
+            }
         }
     }
-    fun beSubscribe(teleporter: Teleporter) {
+    fun beSetWaypoint(teleporter: Teleporter) {
         tell {
-            this.teleporter = teleporter
+            this.wayPoints.add(teleporter)
         }
     }
     fun beChant(spell: Spell) {
@@ -28,17 +30,19 @@ class Archmage(private val destination: Scenario): Actor() {
             wand.dispatch(spell)
         }
     }
-    fun beUnsubscribe() {
+    fun beShutOffPoint(teleporter: Teleporter) {
         tell {
+            wayPoints.remove(teleporter)
+        }
+    }
+    fun beShutOff() {
+        tell {
+            wayPoints.clear()
             unsubscribe()
         }
     }
 
     private object Teleportation {
         val portal = createThreadSafeStore(::mageReducer, AppState())
-        fun subscribe() {
-        }
-        fun unsubscribe() {
-        }
     }
 }

@@ -20,7 +20,7 @@ class WkStationTransfer(attach: Scenario) : Pattern(attach) {
     private fun actTransfer(
         actJob: CompletableDeferred<ObWorkstation?>
     ) {
-        CoroutineScope(Dispatchers.Default).launch {
+        launch {
             toObj = ObWorkstation(
                 id = 0,uniqueId = fromObj.uniqueId,
                 chefId = fromObj.chefId,

@@ -43,7 +43,8 @@ class Helios(private val served: Scenario) : Actor() {
     private fun actSearchMatchedWorkstations(
         queries: QueryWorkstation,
         complete: (
-            ApiStatus, List<SearchMatchedWorkstationsQuery.SearchMatchedWorkstation?>?
+            ApiStatus,
+            List<SearchMatchedWorkstationsQuery.SearchMatchedWorkstation?>?
         ) -> Unit
     ) {
         apiScope.launch {

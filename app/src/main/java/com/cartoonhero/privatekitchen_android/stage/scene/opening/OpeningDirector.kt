@@ -1,16 +1,12 @@
 package com.cartoonhero.privatekitchen_android.stage.scene.opening
 
-import android.content.Context
-import com.cartoonhero.privatekitchen_android.props.entities.EnterListSource
+import com.cartoonhero.privatekitchen_android.actors.archmage.Teleporter
 
 interface OpeningDirector {
-    fun beShowTime()
-    fun beSubscribeListSource(
-        subscriber: (List<EnterListSource>) -> Unit
-    )
-    fun beBuildSource(complete:(List<EnterListSource>) -> Unit)
+    fun beShowTime(teleporter: Teleporter)
+    fun beBuildSource()
     fun beSignWithApple()
-    fun beSignWithFaceBook()
+    fun beSignWithGoogle()
     fun beCreateWorkstation()
     fun beLowerCurtain()
 }
