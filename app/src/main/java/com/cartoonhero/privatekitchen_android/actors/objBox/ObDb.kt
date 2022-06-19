@@ -1,6 +1,7 @@
 package com.cartoonhero.privatekitchen_android.actors.objBox
 
 import android.content.Context
+import com.cartoonhero.privatekitchen_android.props.mainContext
 import com.cartoonhero.privatekitchen_android.props.obEntities.MyObjectBox
 import com.cartoonhero.theatre.Actor
 import io.objectbox.Box
@@ -12,9 +13,9 @@ import kotlinx.coroutines.ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
 @ObsoleteCoroutinesApi
 class ObDb: Actor() {
-    fun beDebut(context: Context) {
+    fun beDebut() {
         tell {
-            ObjBox.createStore(context)
+            ObjBox.createStore()
         }
     }
     suspend fun <T> beTakeBox(boxType: Class<T>): Box<T> {
@@ -29,9 +30,9 @@ class ObDb: Actor() {
     private object ObjBox {
          lateinit var store: BoxStore
             private set
-        fun createStore(context: Context) {
+        fun createStore() {
             store = MyObjectBox.builder()
-                .androidContext(context.applicationContext).build()
+                .androidContext(mainContext.applicationContext).build()
         }
     }
 }

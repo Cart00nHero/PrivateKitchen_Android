@@ -4,8 +4,8 @@ data class Workstation(
     val uniqueId: String?,
     val chefId: String?,
     val kitchenId: String?,
-    var info: StationInfo? = StationInfo(),
-    var kitchen: StKitchen? = StKitchen(),
+    var info: StationInfo?,
+    var kitchen: StKitchen?
 //    var menu: Template?
 )
 data class StationInfo(
