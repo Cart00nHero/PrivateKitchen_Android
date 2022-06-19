@@ -9,7 +9,7 @@ import org.reduxkotlin.createThreadSafeStore
 @ExperimentalCoroutinesApi
 @ObsoleteCoroutinesApi
 class Archmage(private val destination: Scenario): Actor() {
-    private var wayPoints: MutableList<Teleporter> = mutableListOf()
+    private var wayPoints: HashSet<Teleporter> = hashSetOf()
     private val wand = Teleportation.portal
     private val unsubscribe = wand.subscribe{ newState(wand.state) }
 
@@ -22,7 +22,9 @@ class Archmage(private val destination: Scenario): Actor() {
     }
     fun beSetWaypoint(teleporter: Teleporter) {
         tell {
-            this.wayPoints.add(teleporter)
+            if (!wayPoints.contains(teleporter)) {
+                this.wayPoints.add(teleporter)
+            }
         }
     }
     fun beChant(spell: Spell) {
