@@ -7,10 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.MutableLiveData
 import com.cartoonhero.privatekitchen_android.R
-import com.cartoonhero.privatekitchen_android.actors.archmage.AppState
-import com.cartoonhero.privatekitchen_android.actors.archmage.LiveList
-import com.cartoonhero.privatekitchen_android.actors.archmage.LiveScene
-import com.cartoonhero.privatekitchen_android.actors.archmage.Teleporter
+import com.cartoonhero.privatekitchen_android.actors.archmage.*
+import com.cartoonhero.privatekitchen_android.props.ShowWorkstation
 import com.cartoonhero.privatekitchen_android.stage.scenarios.MainScenario
 import kotlinx.coroutines.*
 
@@ -40,22 +38,7 @@ class MainFragment : Fragment() {
     }
 
     private val teleporter: Teleporter = object : Teleporter {
-        override fun beNewState(state: AppState) {
-            if (state.spell is LiveScene) {
-                when(state.spell.prop) {
-                    is String -> {
-                        print(state.spell.prop)
-                    }
-                }
-                return
-            }
-            if (state.spell is LiveList){
-                when(state.spell.prop) {
-                    is String -> {
-                        print(state.spell.idx)
-                    }
-                }
-            }
+        override fun beSpellCraft(spell: Spell) {
         }
     }
 }

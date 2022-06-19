@@ -4,6 +4,6 @@ enum class SignType {
     Apple, Facebook, CreateSt
 }
 enum class WkStTabScene {
-    None, Enter, Kitchen,
-    Storage, MenuEditor, Dashboard
+    None, Enter, Kitchen, Storage,
+    MenuEditor, Dashboard, OrderForm
 }

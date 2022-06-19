@@ -16,7 +16,7 @@ class Archmage(private val destination: Scenario): Actor() {
     private fun newState(state: AppState) {
         destination.tell {
             for (point in wayPoints) {
-                point.beNewState(state)
+                point.beSpellCraft(state.spell)
             }
         }
     }

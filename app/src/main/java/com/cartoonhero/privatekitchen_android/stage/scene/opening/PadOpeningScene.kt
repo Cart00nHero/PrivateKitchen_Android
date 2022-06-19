@@ -6,14 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.cartoonhero.privatekitchen_android.R
-import com.cartoonhero.privatekitchen_android.actors.archmage.AppState
-import com.cartoonhero.privatekitchen_android.actors.archmage.LiveList
-import com.cartoonhero.privatekitchen_android.actors.archmage.LiveScene
-import com.cartoonhero.privatekitchen_android.actors.archmage.Teleporter
+import com.cartoonhero.privatekitchen_android.actors.archmage.*
 import com.cartoonhero.privatekitchen_android.props.entities.EnterListSource
 import com.cartoonhero.privatekitchen_android.stage.scenarios.opening.OpeningScenario
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.*
 
 /**
  * A simple [Fragment] subclass.
@@ -55,20 +51,12 @@ class PadOpeningScene : Fragment() {
     }
 
     private val teleporter: Teleporter = object : Teleporter {
-        override fun beNewState(state: AppState) {
-            if (state.spell is LiveScene) {
-                when(state.spell.prop) {
-                    is List<*> -> {
-                        dataSource = state.spell.prop
-                            .filterIsInstance<EnterListSource>()
-                    }
-                }
-                return
-            }
-            if (state.spell is LiveList){
-                when(state.spell.prop) {
-                    is String -> {
-                        print(state.spell.idx)
+        override fun beSpellCraft(spell: Spell) {
+            CoroutineScope(Dispatchers.Main).launch {
+                if (spell is LiveScene) {
+                    when(spell.prop) {
+                        is List<*> ->
+                            dataSource = spell.prop.filterIsInstance<EnterListSource>()
                     }
                 }
             }
