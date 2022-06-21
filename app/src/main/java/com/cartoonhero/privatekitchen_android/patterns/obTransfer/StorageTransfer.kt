@@ -61,6 +61,8 @@ class StorageTransfer(attach: Scenario) : Pattern(attach) {
         val storeBox = ObDb().beTakeBox(ObStorehouse::class.java)
         toObj.options.addAll(obOptions)
         toObj.items.addAll(items)
+        toObj.options.applyChangesToDb()
+        toObj.items.applyChangesToDb()
         storeBox.put(toObj)
     }
     @JvmName("transfer1")
@@ -128,7 +130,8 @@ class StorageTransfer(attach: Scenario) : Pattern(attach) {
             ).build()
             val customIt = itemQuery.findUnique()
             if (customIt != null) {
-                optRecords[itemId]?.let { customIt.options.addAll(it) }
+                optRecords[itemId]?.let { customIt.customizations.addAll(it) }
+                customIt.customizations.applyChangesToDb()
                 customItems.add(customIt)
             }
         }

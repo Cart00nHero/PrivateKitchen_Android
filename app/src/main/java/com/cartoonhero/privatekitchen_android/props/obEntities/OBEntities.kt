@@ -85,7 +85,7 @@ data class ObMenuItem(
     var photo: String = "",
     var quota: Int = 0
 ) {
-    lateinit var options: ToMany<ObOption>
+    lateinit var customizations: ToMany<ObOption>
     lateinit var toCategory: ToOne<ObCategory>
 }
 fun ObMenuItem.beName():LocalizedText {
