@@ -1,5 +1,7 @@
 package com.cartoonhero.privatekitchen_android.props.entities
 
+import graphqlApollo.operation.type.DiningWay
+
 data class Workstation(
     val uniqueId: String?,
     val chefId: String?,
@@ -22,4 +24,10 @@ data class Orderer(
 data class OrderInfo(
     var cost: Double? = 0.0,
     var people: Int? = 0
+)
+data class Storehouse(
+    val ownerId: String?,
+    var items: List<MenuItem>? = listOf(),
+    var options: List<GQOption>? = listOf(),
+    var diningWays: List<DiningWay>? = listOf()
 )
