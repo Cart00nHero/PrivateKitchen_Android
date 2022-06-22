@@ -33,7 +33,7 @@ class BuildKitchenScenario: Scenario(), BuildKitchenDirector {
                         wkStation = content
                         val kitchen: ObStKitchen = content
                             .kitchen.target ?: ObStKitchen(id = 0)
-                        CoroutineScope(Dispatchers.Main).launch {
+                        withContext(Dispatchers.Main) {
                             complete(kitchen)
                         }
                     }
