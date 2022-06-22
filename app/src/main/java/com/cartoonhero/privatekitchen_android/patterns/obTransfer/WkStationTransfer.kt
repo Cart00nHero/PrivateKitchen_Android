@@ -12,7 +12,7 @@ import kotlinx.coroutines.*
 @ExperimentalCoroutinesApi
 class WkStationTransfer(attach: Scenario) : Pattern(attach) {
     private lateinit var fromObj: Workstation
-    lateinit var toObj: ObWorkstation
+    private lateinit var toObj: ObWorkstation
 
     private fun actSet(from: Workstation) {
         this.fromObj = from

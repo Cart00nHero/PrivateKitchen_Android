@@ -67,6 +67,7 @@ fun ObDiningWay.beOption(): LocalizedText {
 data class ObStorehouse(
     @Id
     var id: Long = 0,
+    val ownerId: String?
 ) {
     lateinit var items: ToMany<ObMenuItem>
     lateinit var options: ToMany<ObOption>
@@ -84,7 +85,7 @@ data class ObMenuItem(
     var photo: String = "",
     var quota: Int = 0
 ) {
-    lateinit var options: ToMany<ObOption>
+    lateinit var customizations: ToMany<ObOption>
     lateinit var toCategory: ToOne<ObCategory>
 }
 fun ObMenuItem.beName():LocalizedText {
