@@ -1,7 +1,5 @@
 package com.cartoonhero.privatekitchen_android.props.entities
 
-import graphqlApollo.operation.type.DiningWay
-
 data class Workstation(
     val uniqueId: String?,
     val chefId: String?,
@@ -20,6 +18,17 @@ data class StKitchen(
 data class Template(
     val ownerId: String?,
     var pages: List<GQPage>? = listOf()
+)
+// MARK: - Dashboard
+data class Dashboard(
+    val ownerId: String?,
+    var closeTime: String?,
+    var steps: List<Workflow>? = listOf()
+)
+// MARK: - Workflow
+data class Workflow(
+    var step: Int? = 0,
+    var name: String? = ""
 )
 data class Storehouse(
     val ownerId: String?,
