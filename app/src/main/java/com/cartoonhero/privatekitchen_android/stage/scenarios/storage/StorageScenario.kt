@@ -4,17 +4,14 @@ import com.apollographql.apollo3.api.Optional
 import com.cartoonhero.privatekitchen_android.actors.Transformer
 import com.cartoonhero.privatekitchen_android.actors.apolloApi.ApiStatus
 import com.cartoonhero.privatekitchen_android.actors.apolloApi.Helios
-import com.cartoonhero.privatekitchen_android.actors.archmage.Archmage
-import com.cartoonhero.privatekitchen_android.actors.archmage.LiveScene
-import com.cartoonhero.privatekitchen_android.actors.archmage.Teleporter
+import com.cartoonhero.privatekitchen_android.actors.archmage.*
 import com.cartoonhero.privatekitchen_android.actors.objBox.ObDb
 import com.cartoonhero.privatekitchen_android.patterns.Transcribe
 import com.cartoonhero.privatekitchen_android.patterns.obTransfer.StorageTransfer
-import com.cartoonhero.privatekitchen_android.props.entities.Storehouse
+import com.cartoonhero.privatekitchen_android.props.entities.*
 import com.cartoonhero.privatekitchen_android.props.obEntities.*
 import com.cartoonhero.privatekitchen_android.stage.scene.storage.StorageDirector
-import com.cartoonhero.theatre.Courier
-import com.cartoonhero.theatre.Scenario
+import com.cartoonhero.theatre.*
 import graphqlApollo.operation.FindStorehouseQuery
 import graphqlApollo.operation.type.InputMenuItem
 import graphqlApollo.operation.type.InputOption
@@ -33,8 +30,8 @@ class StorageScenario : Scenario(), StorageDirector {
 
     private fun actShowTime(teleporter: Teleporter) {
         archmage.beSetWaypoint(teleporter)
+        archmage.beSetWaypoint(waypoint)
     }
-
     private fun actCollectParcels() {
         launch {
             val pSet = Courier(this@StorageScenario).beClaim()
@@ -48,7 +45,6 @@ class StorageScenario : Scenario(), StorageDirector {
             }
         }
     }
-
     private fun actRestoreData() {
         val saveStoreJob: Deferred<ObStorehouse?> = async {
             val storeBox = ObDb().beTakeBox(ObStorehouse::class.java)
@@ -91,7 +87,6 @@ class StorageScenario : Scenario(), StorageDirector {
             }
         }
     }
-
     private fun actUploadData(complete: (Boolean) -> Unit) {
         val mainScope = CoroutineScope(Dispatchers.Main)
         if (obStore == null) {
@@ -122,12 +117,10 @@ class StorageScenario : Scenario(), StorageDirector {
             }
         }
     }
-
     private fun actCheckPickUp(source: Set<Long>, spotId: Long, complete: (Boolean) -> Unit) {
         val picked: Boolean = source.contains(spotId)
         CoroutineScope(Dispatchers.Main).launch { complete(picked) }
     }
-
     private fun actSaveCustomItem(optIds: Set<Long>) {
         if (customItem == null) return
         val findJob: Deferred<List<ObOption>> = async {
@@ -153,7 +146,6 @@ class StorageScenario : Scenario(), StorageDirector {
             itemBox.put(customItem!!)
             queryStorehouse()
         }
-
     }
     private fun actSaveData(complete: (() -> Unit)?) {
         if (obStore == null) return
@@ -165,15 +157,49 @@ class StorageScenario : Scenario(), StorageDirector {
             }
         }
     }
+    private fun actAddCustomItem(item: ObMenuItem) {
+        if (obStore == null) return
+        launch {
+            val aBox = ObDb().beTakeBox(ObStorehouse::class.java)
+            val itemBox = ObDb().beTakeBox(ObMenuItem::class.java)
+            aBox.put(obStore!!)
+            val query = itemBox.query(
+                ObMenuItem_.spotId.equal(item.spotId)
+            ).build()
+            val found = query.findUnique()
+            if (found != null) {
+                customItem = found
+                startPickingOptions()
+            }
+        }
+    }
+    private fun actEditMenuItem(item: ObMenuItem?, complete: (() -> Unit)?) {
+        val editItem: ObMenuItem = item ?: ObMenuItem(id = 0)
+        launch {
+            if (packEditItem(editItem)) {
+                withContext(Dispatchers.Main) {
+                    complete?.let { it() }
+                }
+            }
+        }
+    }
+    private fun actEditOption(option: ObOption?, complete: (() -> Unit)?) {
+        val editOpt: ObOption = option ?: ObOption(id = 0)
+        launch {
+            if (packEditOption(editOpt)) {
+                complete?.let { it() }
+            }
+        }
+    }
     private fun actLowerCurtain() {
         archmage.beShutOff()
     }
 
-/** -------------------------------------------------------------------------------------------------------------- **/
+    /** ---------------------------------------------------------------------------------------------------- **/
 
     private suspend fun queryStorehouse() {
         val queryBox = ObDb().beTakeBox(ObStorehouse::class.java)
-        val  query = queryBox.query(
+        val query = queryBox.query(
             ObStorehouse_.ownerId.equal(stationId)
         ).build()
         val foundStore = query.findUnique()
@@ -182,6 +208,28 @@ class StorageScenario : Scenario(), StorageDirector {
             archmage.beChant(LiveScene(prop = foundStore))
         }
     }
+
+    private suspend fun packEditItem(item: ObMenuItem): Boolean {
+        val courier = Courier(this)
+        courier.beApply(item, "EditItemScenario")
+        return true
+    }
+
+    private suspend fun packEditOption(option: ObOption): Boolean {
+        val courier = Courier(this)
+        courier.beApply(option, "CustomizeOptScenario")
+        return true
+    }
+
+    private fun startPickingOptions() {
+        if (customItem == null) return
+        launch {
+            val existIds: Set<Long> = customItem!!.customizations.map { it.spotId }.toSet()
+            val customIt = CustomizeItem(selected = customItem!!, existIds)
+            archmage.beChant(LiveScene(prop = customIt))
+        }
+    }
+
     private suspend fun prepareOptionInputs(options: List<ObOption>): List<InputOption> {
         val optInputs: MutableList<InputOption> = mutableListOf()
         for (obOpt in options) {
@@ -212,7 +260,54 @@ class StorageScenario : Scenario(), StorageDirector {
         }
         return itemInputs
     }
-/** ------------------------------------------------------------------------------------------------------------ **/
+
+    private fun handleModifyItemAction(action: ModifyItemAction) {
+        if (obStore != null) return
+        when (action.modifyType) {
+            ModifyType.Create -> launch {
+                val newItem: ObMenuItem = action.item
+                val storeBox = ObDb().beTakeBox(ObStorehouse::class.java)
+                val itCount = obStore!!.items.size
+                newItem.sequence = itCount
+                obStore!!.items.add(newItem)
+                obStore!!.items.applyChangesToDb()
+                storeBox.put(obStore!!)
+                queryStorehouse()
+            }
+            ModifyType.Update -> launch { queryStorehouse() }
+            ModifyType.Delete -> launch { queryStorehouse() }
+        }
+    }
+    private fun handleModifyOptionAction(action: ModifyOptionAction) {
+        if (obStore != null) return
+        when(action.modifyType) {
+            ModifyType.Create -> launch {
+                val newOpt: ObOption = action.option
+                val storeBox = ObDb().beTakeBox(ObStorehouse::class.java)
+                val optsCount: Int = obStore!!.options.size
+                newOpt.sequence = optsCount
+                obStore!!.options.add(newOpt)
+                obStore!!.options.applyChangesToDb()
+                storeBox.put(obStore!!)
+                queryStorehouse()
+            }
+            ModifyType.Update -> launch { queryStorehouse() }
+            ModifyType.Delete -> launch { queryStorehouse() }
+        }
+    }
+
+    private val waypoint: Teleporter = object : Teleporter {
+        override fun beSpellCraft(spell: Spell) {
+            if (spell is MassTeleport) {
+                when (spell.stuff) {
+                    is ModifyItemAction -> handleModifyItemAction(spell.stuff)
+                    is ModifyOptionAction -> handleModifyOptionAction(spell.stuff)
+                }
+            }
+        }
+    }
+
+    /** ------------------------------------------------------------------------------------------------------ **/
 
     override fun beShowTime(teleporter: Teleporter) {
         tell { actShowTime(teleporter) }
@@ -240,6 +335,18 @@ class StorageScenario : Scenario(), StorageDirector {
 
     override fun beSaveData(complete: (() -> Unit)?) {
         tell { actSaveData(complete) }
+    }
+
+    override fun beAddCustomItem(item: ObMenuItem) {
+        tell { actAddCustomItem(item) }
+    }
+
+    override fun beEditMenuItem(item: ObMenuItem?, complete: (() -> Unit)?) {
+        tell { actEditMenuItem(item, complete) }
+    }
+
+    override fun beEditOption(option: ObOption?, complete: (() -> Unit)?) {
+        tell { actEditOption(option, complete) }
     }
 
     override fun beLowerCurtain() {

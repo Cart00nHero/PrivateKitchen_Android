@@ -20,14 +20,14 @@ import kotlinx.coroutines.*
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
-class BuildKitchenScenario: Scenario(), BuildKitchenDirector {
+class BuildKitchenScenario : Scenario(), BuildKitchenDirector {
     private var wkStation: ObWorkstation? = null
 
     private fun actCollectParcels(complete: (ObStKitchen) -> Unit) {
         launch {
             val pSet = Courier(this@BuildKitchenScenario).beClaim()
             for (parcel in pSet) {
-                when(parcel.content) {
+                when (parcel.content) {
                     is ObWorkstation -> {
                         val content: ObWorkstation = parcel.content as ObWorkstation
                         wkStation = content
@@ -41,6 +41,7 @@ class BuildKitchenScenario: Scenario(), BuildKitchenDirector {
             }
         }
     }
+
     private fun actCheckInput(phone: String, complete: (Boolean) -> Unit) {
         launch {
             if (phone.isNotEmpty()) {
@@ -55,6 +56,7 @@ class BuildKitchenScenario: Scenario(), BuildKitchenDirector {
             }
         }
     }
+
     private fun actSaveKitchen(info: KitchenInfo, floor: String, complete: (() -> Unit)?) {
         if (wkStation == null) return
         val stationJob: Deferred<ObWorkstation> = async {
@@ -96,10 +98,9 @@ class BuildKitchenScenario: Scenario(), BuildKitchenDirector {
                 }
             }
         }
-
     }
 
-/** -------------------------------------------------------------------------------------------------------------- **/
+    /** ------------------------------------------------------------------------------------------------------- **/
 
     override fun beCollectParcels(complete: (ObStKitchen) -> Unit) {
         tell { actCollectParcels(complete) }
