@@ -34,7 +34,6 @@ class OpeningScenario : Scenario(), OpeningDirector {
             ObDb().beDebut()
         }
     }
-
     private fun actBuildSource() {
         val sharedPrefs = mainContext.getSharedPreferences(
             sharedStorage, Context.MODE_PRIVATE
@@ -88,6 +87,8 @@ class OpeningScenario : Scenario(), OpeningDirector {
         archmage.beShutOff()
     }
 
+/** -------------------------------------------------------------------------------------------------------------- **/
+
     private fun findMyWorkstation(chefId: String) {
         val query = QueryWorkstation(
             chefId = Optional.presentIfNotNull(chefId)
@@ -123,7 +124,6 @@ class OpeningScenario : Scenario(), OpeningDirector {
             }
         }
     }
-
     private fun saveWorkstation(station: Workstation) {
         val transfer = WkStationTransfer(this)
         transfer.beSet(station)
@@ -134,6 +134,8 @@ class OpeningScenario : Scenario(), OpeningDirector {
             }
         }
     }
+
+/** -------------------------------------------------------------------------------------------------------------- **/
 
     override fun beShowTime(teleporter: Teleporter) {
         tell {

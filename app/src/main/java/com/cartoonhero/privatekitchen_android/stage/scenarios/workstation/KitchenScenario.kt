@@ -37,6 +37,7 @@ class KitchenScenario: Scenario(), KitchenDirector {
             }
         }
     }
+ /** -------------------------------------------------------------------------------------------------------------- **/
     override fun beCollectParcels(complete: (ObWorkstation) -> Unit) {
         actCollectParcels(complete)
     }

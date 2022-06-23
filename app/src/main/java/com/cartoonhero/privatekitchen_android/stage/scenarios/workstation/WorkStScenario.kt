@@ -83,6 +83,9 @@ class WorkStScenario : Scenario(), WorkStDirector {
     private fun actLowerCurtain() {
         archmage.beShutOff()
     }
+
+/** -------------------------------------------------------------------------------------------------------------- **/
+
     private fun buildSideMenuWith() {
         val source: MutableList<WorkSideMenuVM> = mutableListOf(
             WorkSideMenuVM(
@@ -132,6 +135,8 @@ class WorkStScenario : Scenario(), WorkStDirector {
             }
         }
     }
+
+/** -------------------------------------------------------------------------------------------------------------- **/
 
     override fun beShowTime(teleporter: Teleporter) {
         tell { actShowTime(teleporter) }

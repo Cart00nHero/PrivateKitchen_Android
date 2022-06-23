@@ -98,6 +98,9 @@ class BuildKitchenScenario: Scenario(), BuildKitchenDirector {
         }
 
     }
+
+/** -------------------------------------------------------------------------------------------------------------- **/
+
     override fun beCollectParcels(complete: (ObStKitchen) -> Unit) {
         tell { actCollectParcels(complete) }
     }

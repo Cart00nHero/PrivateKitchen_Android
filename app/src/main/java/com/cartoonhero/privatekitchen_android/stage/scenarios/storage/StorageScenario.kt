@@ -23,22 +23,23 @@ import kotlinx.coroutines.*
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
-class StorageScenario: Scenario(), StorageDirector {
+class StorageScenario : Scenario(), StorageDirector {
     private var stationId: String = ""
     private var obStore: ObStorehouse? = null
     private var customItem: ObMenuItem? = null
-
     private val archmage: Archmage by lazy {
         Archmage(this)
     }
+
     private fun actShowTime(teleporter: Teleporter) {
         archmage.beSetWaypoint(teleporter)
     }
+
     private fun actCollectParcels() {
         launch {
             val pSet = Courier(this@StorageScenario).beClaim()
             for (parcel in pSet) {
-                when(val content = parcel.content) {
+                when (val content = parcel.content) {
                     is ObWorkstation -> {
                         stationId = content.uniqueId ?: ""
                         beRestoreData()
@@ -47,6 +48,7 @@ class StorageScenario: Scenario(), StorageDirector {
             }
         }
     }
+
     private fun actRestoreData() {
         val saveStoreJob: Deferred<ObStorehouse?> = async {
             val storeBox = ObDb().beTakeBox(ObStorehouse::class.java)
@@ -65,8 +67,8 @@ class StorageScenario: Scenario(), StorageDirector {
                 else -> {
                     Helios(this@StorageScenario).beFindStorehouse(
                         stationId
-                    ) { status,foundData ->
-                        when(status) {
+                    ) { status, foundData ->
+                        when (status) {
                             ApiStatus.SUCCESS -> {
                                 if (foundData != null) {
                                     launch {
@@ -89,6 +91,7 @@ class StorageScenario: Scenario(), StorageDirector {
             }
         }
     }
+
     private fun actUploadData(complete: (Boolean) -> Unit) {
         val mainScope = CoroutineScope(Dispatchers.Main)
         if (obStore == null) {
@@ -107,7 +110,7 @@ class StorageScenario: Scenario(), StorageDirector {
             Helios(this@StorageScenario).beUpdateStorehouse(
                 stationId, storeInput
             ) { status, _ ->
-                when(status) {
+                when (status) {
                     ApiStatus.SUCCESS -> {
                         mainScope.launch { complete(true) }
                     }
@@ -119,11 +122,66 @@ class StorageScenario: Scenario(), StorageDirector {
             }
         }
     }
+
     private fun actCheckPickUp(source: Set<Long>, spotId: Long, complete: (Boolean) -> Unit) {
         val picked: Boolean = source.contains(spotId)
         CoroutineScope(Dispatchers.Main).launch { complete(picked) }
     }
- /** ---------------------------------------------------------------------------------------------------------- **/
+
+    private fun actSaveCustomItem(optIds: Set<Long>) {
+        if (customItem == null) return
+        val findJob: Deferred<List<ObOption>> = async {
+            val newChosen: MutableList<ObOption> = mutableListOf()
+            val optBox = ObDb().beTakeBox(ObOption::class.java)
+            for (sid in optIds) {
+                val query = optBox.query(
+                    ObOption_.spotId.equal(sid)
+                ).build()
+                val obOpt = query.findUnique()
+                if (obOpt != null) {
+                    newChosen.add(obOpt)
+                }
+            }
+            return@async newChosen
+        }
+        launch {
+            val itemBox = ObDb().beTakeBox(ObMenuItem::class.java)
+            val newChosen: List<ObOption> = findJob.await()
+            customItem!!.customizations.clear()
+            customItem!!.customizations.addAll(newChosen)
+            customItem!!.customizations.applyChangesToDb()
+            itemBox.put(customItem!!)
+            queryStorehouse()
+        }
+
+    }
+    private fun actSaveData(complete: (() -> Unit)?) {
+        if (obStore == null) return
+        launch {
+            val storeBox = ObDb().beTakeBox(ObStorehouse::class.java)
+            storeBox.put(obStore!!)
+            withContext(Dispatchers.Main) {
+                complete?.let { it() }
+            }
+        }
+    }
+    private fun actLowerCurtain() {
+        archmage.beShutOff()
+    }
+
+/** -------------------------------------------------------------------------------------------------------------- **/
+
+    private suspend fun queryStorehouse() {
+        val queryBox = ObDb().beTakeBox(ObStorehouse::class.java)
+        val  query = queryBox.query(
+            ObStorehouse_.ownerId.equal(stationId)
+        ).build()
+        val foundStore = query.findUnique()
+        if (foundStore != null) {
+            obStore = foundStore
+            archmage.beChant(LiveScene(prop = foundStore))
+        }
+    }
     private suspend fun prepareOptionInputs(options: List<ObOption>): List<InputOption> {
         val optInputs: MutableList<InputOption> = mutableListOf()
         for (obOpt in options) {
@@ -137,6 +195,7 @@ class StorageScenario: Scenario(), StorageDirector {
         }
         return optInputs
     }
+
     private suspend fun prepareItemInputs(): List<InputMenuItem> {
         val obItems: List<ObMenuItem> = obStore!!.items
         val itemInputs: MutableList<InputMenuItem> = mutableListOf()
@@ -153,7 +212,8 @@ class StorageScenario: Scenario(), StorageDirector {
         }
         return itemInputs
     }
-/** ---------------------------------------------------------------------------------------------------------- **/
+/** ------------------------------------------------------------------------------------------------------------ **/
+
     override fun beShowTime(teleporter: Teleporter) {
         tell { actShowTime(teleporter) }
     }
@@ -175,14 +235,14 @@ class StorageScenario: Scenario(), StorageDirector {
     }
 
     override fun beSaveCustomItem(optIds: Set<Long>) {
-        TODO("Not yet implemented")
+        tell { actSaveCustomItem(optIds) }
     }
 
     override fun beSaveData(complete: (() -> Unit)?) {
-        TODO("Not yet implemented")
+        tell { actSaveData(complete) }
     }
 
     override fun beLowerCurtain() {
-        TODO("Not yet implemented")
+        tell { actLowerCurtain() }
     }
 }

@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.lifecycle.MutableLiveData
 import com.cartoonhero.privatekitchen_android.R
 import com.cartoonhero.privatekitchen_android.actors.archmage.*
-import com.cartoonhero.privatekitchen_android.props.ShowWorkstation
 import com.cartoonhero.privatekitchen_android.stage.scenarios.MainScenario
 import kotlinx.coroutines.*
 
