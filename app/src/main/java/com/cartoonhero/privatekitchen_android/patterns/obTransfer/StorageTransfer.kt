@@ -39,6 +39,7 @@ class StorageTransfer(attach: Scenario) : Pattern(attach) {
             }
         }
     }
+/** ---------------------------------------------------------------------------------------------------------- **/
     private suspend fun cleanDB(): Boolean {
         val storeBox = ObDb().beTakeBox(ObStorehouse::class.java)
         val itemBox = ObDb().beTakeBox(ObDiningWay::class.java)
@@ -147,7 +148,7 @@ class StorageTransfer(attach: Scenario) : Pattern(attach) {
         ).build()
         return query.findUnique()
     }
-
+ /** ---------------------------------------------------------------------------------------------------------- **/
     fun beSet(from: Storehouse) {
         tell {
             actSet(from)

@@ -19,7 +19,7 @@ class WorkStScenario : Scenario(), WorkStDirector {
     private var wkStation: ObWorkstation? = null
 
     private fun actShowTime(teleporter: Teleporter) {
-        archmage.beSetWaypoint(this.teleporter)
+        archmage.beSetWaypoint(this.waypoint)
         archmage.beSetWaypoint(teleporter)
     }
 
@@ -83,6 +83,9 @@ class WorkStScenario : Scenario(), WorkStDirector {
     private fun actLowerCurtain() {
         archmage.beShutOff()
     }
+
+/** -------------------------------------------------------------------------------------------------------------- **/
+
     private fun buildSideMenuWith() {
         val source: MutableList<WorkSideMenuVM> = mutableListOf(
             WorkSideMenuVM(
@@ -112,7 +115,7 @@ class WorkStScenario : Scenario(), WorkStDirector {
         archmage.beChant(LiveScene(source.toList()))
     }
 
-    private val teleporter: Teleporter = object : Teleporter {
+    private val waypoint: Teleporter = object : Teleporter {
         override fun beSpellCraft(spell: Spell) {
             if (spell is MassTeleport) {
                 when (spell.stuff) {
@@ -132,6 +135,8 @@ class WorkStScenario : Scenario(), WorkStDirector {
             }
         }
     }
+
+/** -------------------------------------------------------------------------------------------------------------- **/
 
     override fun beShowTime(teleporter: Teleporter) {
         tell { actShowTime(teleporter) }

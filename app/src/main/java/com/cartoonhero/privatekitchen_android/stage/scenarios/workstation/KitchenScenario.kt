@@ -16,7 +16,7 @@ class KitchenScenario: Scenario(), KitchenDirector {
                 when (parcel.content) {
                     is ObWorkstation -> {
                         val content: ObWorkstation = parcel.content as ObWorkstation
-                        CoroutineScope(Dispatchers.Main).launch {
+                        withContext(Dispatchers.Main) {
                             complete(content)
                         }
                     }
@@ -32,11 +32,12 @@ class KitchenScenario: Scenario(), KitchenDirector {
             Courier(this@KitchenScenario).beApply(
                 parcel, recipient
             )
-            CoroutineScope(Dispatchers.Main).launch {
+            withContext(Dispatchers.Main) {
                 complete?.let { it() }
             }
         }
     }
+ /** -------------------------------------------------------------------------------------------------------------- **/
     override fun beCollectParcels(complete: (ObWorkstation) -> Unit) {
         actCollectParcels(complete)
     }

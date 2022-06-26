@@ -105,3 +105,7 @@ data class ObOption(
     var price: Double? = 0.0,
     var titleText: String = ""
 )
+fun ObOption.beTitle():LocalizedText {
+    val theText = this.titleText.toEntity<LocalizedText>()
+    return theText ?: LocalizedText()
+}
