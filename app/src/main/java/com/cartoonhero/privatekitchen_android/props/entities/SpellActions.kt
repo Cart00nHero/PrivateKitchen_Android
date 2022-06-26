@@ -7,11 +7,11 @@ data class ModifyItemAction(
     val modifyType: ModifyType,
     val item: ObMenuItem
 )
-data class CustomizeItem(
-    val selected: ObMenuItem,
-    val chosenIds: Set<Long>
-)
 data class ModifyOptionAction(
     val modifyType: ModifyType,
     val option: ObOption
+)
+data class CustomizedItem(
+    val selected: ObMenuItem,
+    val chosenIds: Set<Long>
 )

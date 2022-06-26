@@ -225,7 +225,7 @@ class StorageScenario : Scenario(), StorageDirector {
         if (customItem == null) return
         launch {
             val existIds: Set<Long> = customItem!!.customizations.map { it.spotId }.toSet()
-            val customIt = CustomizeItem(selected = customItem!!, existIds)
+            val customIt = CustomizedItem(selected = customItem!!, existIds)
             archmage.beChant(LiveScene(prop = customIt))
         }
     }
@@ -341,7 +341,7 @@ class StorageScenario : Scenario(), StorageDirector {
         tell { actAddCustomItem(item) }
     }
 
-    override fun beEditMenuItem(item: ObMenuItem?, complete: (() -> Unit)?) {
+    override fun beEditItem(item: ObMenuItem?, complete: (() -> Unit)?) {
         tell { actEditMenuItem(item, complete) }
     }
 

@@ -1,6 +1,7 @@
 package com.cartoonhero.privatekitchen_android.props.entities
 
 import com.cartoonhero.privatekitchen_android.props.obEntities.ObMenuItem
+import com.cartoonhero.privatekitchen_android.props.obEntities.ObOption
 
 data class EnterListSource(
     val title: String,
@@ -14,4 +15,8 @@ data class ObMuItemFile(
     val item: ObMenuItem,
     var nameText: String,
     var introText: String
+)
+data class ObOptFile(
+    val option: ObOption,
+    var titleText: String = ""
 )
