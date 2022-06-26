@@ -34,6 +34,7 @@ class OpeningScenario : Scenario(), OpeningDirector {
             ObDb().beDebut()
         }
     }
+
     private fun actBuildSource() {
         val sharedPrefs = mainContext.getSharedPreferences(
             sharedStorage, Context.MODE_PRIVATE
@@ -49,10 +50,13 @@ class OpeningScenario : Scenario(), OpeningDirector {
             findMyWorkstation(uid)
         }
     }
+
     private fun actSignWithApple() {
     }
+
     private fun actSignWithGoogle() {
     }
+
     private fun actCreateWorkstation() {
         val sharedPrefs = mainContext.getSharedPreferences(
             sharedStorage, Context.MODE_PRIVATE
@@ -64,7 +68,7 @@ class OpeningScenario : Scenario(), OpeningDirector {
             info = Optional.presentIfNotNull(chefInfo)
         )
         Helios(this).beCreateWorkstation(inputSt) { status, respObj ->
-            when(status) {
+            when (status) {
                 ApiStatus.SUCCESS -> {
                     if (respObj != null) {
                         launch {
@@ -78,16 +82,17 @@ class OpeningScenario : Scenario(), OpeningDirector {
                     }
                 }
                 else -> {
-                    Log.d("Create Station","Error")
+                    Log.d("Create Station", "Error")
                 }
             }
         }
     }
+
     private fun actLowerCurtain() {
         archmage.beShutOff()
     }
 
-/** -------------------------------------------------------------------------------------------------------------- **/
+    /** ----------------------------------------------------------------------------------------------------- **/
 
     private fun findMyWorkstation(chefId: String) {
         val query = QueryWorkstation(
@@ -124,6 +129,7 @@ class OpeningScenario : Scenario(), OpeningDirector {
             }
         }
     }
+
     private fun saveWorkstation(station: Workstation) {
         val transfer = WkStationTransfer(this)
         transfer.beSet(station)
@@ -135,7 +141,7 @@ class OpeningScenario : Scenario(), OpeningDirector {
         }
     }
 
-/** -------------------------------------------------------------------------------------------------------------- **/
+    /** ----------------------------------------------------------------------------------------------------- **/
 
     override fun beShowTime(teleporter: Teleporter) {
         tell {

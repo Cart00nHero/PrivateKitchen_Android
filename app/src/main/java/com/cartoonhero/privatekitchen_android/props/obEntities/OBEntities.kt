@@ -19,6 +19,7 @@ data class ObWorkstation(
     var info: String = ""
 ) {
     lateinit var kitchen: ToOne<ObStKitchen>
+    lateinit var menu: ToOne<ObTemplate>
 }
 fun ObWorkstation.beInfo(): StationInfo {
     val info = this.info.toEntity<StationInfo>()

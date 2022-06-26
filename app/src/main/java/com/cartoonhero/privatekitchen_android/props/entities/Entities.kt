@@ -20,3 +20,6 @@ data class ObOptFile(
     val option: ObOption,
     var titleText: String = ""
 )
+data class UnPickedItems(
+    val unPicked: List<ObMenuItem>
+)
