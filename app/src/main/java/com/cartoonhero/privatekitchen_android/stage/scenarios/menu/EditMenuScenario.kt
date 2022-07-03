@@ -6,15 +6,17 @@ import com.cartoonhero.privatekitchen_android.actors.apolloApi.*
 import com.cartoonhero.privatekitchen_android.actors.archmage.*
 import com.cartoonhero.privatekitchen_android.actors.objBox.ObDb
 import com.cartoonhero.privatekitchen_android.patterns.Transcribe
+import com.cartoonhero.privatekitchen_android.patterns.obTransfer.TemplateTransfer
+import com.cartoonhero.privatekitchen_android.props.EditMenuComplete
 import com.cartoonhero.privatekitchen_android.props.entities.*
-import com.cartoonhero.privatekitchen_android.props.entities.Workstation
+import com.cartoonhero.privatekitchen_android.props.entities.LocalizedText
+import com.cartoonhero.privatekitchen_android.props.entities.MenuItem
 import com.cartoonhero.privatekitchen_android.props.obEntities.*
 import com.cartoonhero.privatekitchen_android.stage.scene.menu.EditMenuDirector
 import com.cartoonhero.theatre.Courier
 import com.cartoonhero.theatre.Scenario
-import graphqlApollo.client.type.InputKitchen
-import graphqlApollo.client.type.InputMenu
-import graphqlApollo.operation.SearchMatchedWorkstationsQuery
+import graphqlApollo.client.type.*
+import graphqlApollo.operation.FindWorkstationQuery
 import graphqlApollo.operation.type.*
 import io.objectbox.kotlin.and
 import kotlinx.coroutines.*
@@ -165,6 +167,26 @@ class EditMenuScenario : Scenario(), EditMenuDirector {
             archmage.beChant(LiveScene(PickedItems(picked)))
         }
     }
+    private fun actSaveCategory(title: String, items: List<ObMenuItem>) {
+        if (!pageEditing) return
+        launch {
+            val ctgBox = ObDb().beTakeBox(ObCategory::class.java)
+            val tmpCtg = tempMenu?.pages?.first()?.categories?.first()
+            if (tmpCtg != null) {
+                tmpCtg.titleText = Transformer().beToJson(
+                    LocalizedText(local = title)
+                )
+                tmpCtg.items.clear()
+                tmpCtg.items.addAll(items)
+                tmpCtg.items.applyChangesToDb()
+                ctgBox.put(tmpCtg)
+                pageEditing = false
+                queryObTemplate()
+                queryUnpicked()
+                archmage.beChant(LiveScene(EditMenuComplete()))
+            }
+        }
+    }
 
     private fun actUpdate(title: String, category: ObCategory) {
         if (!pageEditing) return
@@ -234,32 +256,60 @@ class EditMenuScenario : Scenario(), EditMenuDirector {
         }
     }
 
-    fun actPublish() {
-        val query = QueryWorkstation(uniqueId = Optional.presentIfNotNull(stationId))
-        Helios(this).beSearchMatchedWorkstations(query) { status, stations ->
-            when (status) {
-                ApiStatus.SUCCESS -> {
-                    if (stations.isNullOrEmpty()) {
+    private fun actPublish(complete: (Boolean) -> Unit) {
+        Helios(this@EditMenuScenario)
+            .beFindWorkstation(stationId) { status, respObj ->
+                when(status) {
+                    ApiStatus.SUCCESS -> {
+                        val addressJob: Deferred<InputAddress> = async {
+                            var inputAddress = InputAddress(latitude = "0.0", longitude = "0.0")
+                            if (respObj?.kitchen?.address != null) {
+                                val address = Transformer()
+                                    .beTransfer<FindWorkstationQuery.Address, GQAddress>(
+                                        respObj.kitchen.address
+                                    )
+                                if (address != null) {
+                                    inputAddress = Transcribe(this@EditMenuScenario).beGQAddressToInput(address)
+                                }
+                            }
+                            inputAddress
+                        }
+                        val menuJob: Deferred<InputMenu> = async {
+                            var menuInput = InputMenu(ownerId = respObj?.kitchenId ?: "")
+                            if (respObj?.menu != null) {
+                                val gqMenu = Transformer()
+                                    .beTransfer<FindWorkstationQuery.Menu, GQMenu>(respObj.menu)
+                                if (gqMenu != null) {
+                                    val pageInputs = getPublishPages(gqMenu.pages ?: listOf())
+                                    menuInput = InputMenu(
+                                        ownerId = respObj.kitchenId ?: "",
+                                        pages = Optional.presentIfNotNull(pageInputs)
+                                    )
+                                }
+                            }
+                            menuInput
+                        }
                         launch {
-                            val wkStation = stations?.first()
-                            val workstation = Transformer()
-                                .beTransfer<SearchMatchedWorkstationsQuery
-                                .SearchMatchedWorkstation?, Workstation>(wkStation)
-                            var inputAddress: InputOpAddress? = null
-                            var inputMenu: InputMenu? = null
-                            if (workstation?.kitchen?.address != null) {
-                                inputAddress = Transcribe(this@EditMenuScenario)
-                                    .beGQAddressToInput(workstation.kitchen?.address!!)
-                            }
-                            if (workstation!!.menu != null) {
-                            }
-
+                            val infoInput = InputKitchenInfo(
+                                name = respObj?.kitchen?.info?.name ?: "",
+                                phone = respObj?.kitchen?.info?.phone ?: ""
+                            )
+                            val kitchenIn = InputKitchen(
+                                address = addressJob.await(),
+                                info = Optional.presentIfNotNull(infoInput),
+                                menu = menuJob.await(), uniqueId = respObj?.kitchenId ?: ""
+                            )
+                            publish(kitchenIn, respObj?.chefId ?: "", complete)
                         }
                     }
+                    ApiStatus.FAILED -> CoroutineScope(Dispatchers.Main).launch {
+                        complete(false)
+                    }
                 }
-                ApiStatus.FAILED -> TODO()
             }
-        }
+    }
+    private fun actLowerCurtain() {
+        archmage.beShutOff()
     }
 
     /** ------------------------------------------------------------------------------------------------ **/
@@ -271,11 +321,35 @@ class EditMenuScenario : Scenario(), EditMenuDirector {
         ).build()
         val found = query.findUnique()
         if (found == null) {
+            /* Test code
             val newMenu = ObTemplate(id = 0, ownerId = stationId)
             tempBox.put(newMenu)
             queryObTemplate()
+            */
+            syncMenu()
         } else {
             tempMenu = found
+            buildPageVMs()
+        }
+    }
+
+    private fun syncMenu() {
+        Helios(this).beFindWorkstation(stationId) { status, respData ->
+            when(status) {
+                ApiStatus.SUCCESS -> launch {
+                    if (respData?.menu != null) {
+                        val newMenu = Transformer()
+                            .beTransfer<FindWorkstationQuery.Menu, Template>(respData.menu)
+                        if (newMenu != null) {
+                            val transfer = TemplateTransfer(this@EditMenuScenario)
+                            transfer.beSet(newMenu)
+                            tempMenu = transfer.beTransfer()
+                            buildPageVMs()
+                        }
+                    }
+                }
+                ApiStatus.FAILED -> print("Not found")
+            }
         }
     }
 
@@ -323,9 +397,11 @@ class EditMenuScenario : Scenario(), EditMenuDirector {
             val titleInput: InputOpText = Transcribe(this).beLocalizedTextTo(
                 obCtg.beTitle()
             )
+            val itemInputs = transformItems(obCtg.items)
             val ctgInput = InputStoreCategory(
                 sequence = i, spotId = obCtg.spotId.toString(),
-                titleText = Optional.presentIfNotNull(titleInput)
+                titleText = Optional.presentIfNotNull(titleInput),
+                items = Optional.presentIfNotNull(itemInputs)
             )
             ctgInputs.add(ctgInput)
         }
@@ -351,63 +427,91 @@ class EditMenuScenario : Scenario(), EditMenuDirector {
         return itemInputs
     }
 
-    private suspend fun remove(category: ObCategory, page: ObPage) {
-        val removeSeq: Int = category.sequence ?: 0
-        val ctgBox = ObDb().beTakeBox(ObCategory::class.java)
-        ctgBox.remove(category)
-        val query = ctgBox.query(
-            ObCategory_.toPageId.equal(page.id)
-                    and
-                    ObCategory_.sequence.greater(removeSeq)
-        ).build()
-        val sortData = query.find()
-        for (i in 0 until sortData.size) {
-            val idx: Int = sortData[i].sequence ?: 0
-            sortData[i].sequence = idx - 1
-        }
-        ctgBox.put(sortData)
-        queryUnpicked()
-        queryObTemplate()
-    }
-
-    private suspend fun save(category: ObCategory) {
-        if (!pageEditing) return
-        val tmpCtg = tempMenu?.pages?.first()?.categories?.first()
-        if (tmpCtg != null) {
-            val ctgBox = ObDb().beTakeBox(ObCategory::class.java)
-            ctgBox.put(tmpCtg)
-            queryObTemplate()
-            queryUnpicked()
-        }
-    }
-
-    private suspend fun saveCategory(title: String, items: List<ObMenuItem>) {
-        if (!pageEditing) return
-        val ctgBox = ObDb().beTakeBox(ObCategory::class.java)
-        val tmpCtg = tempMenu?.pages?.first()?.categories?.first()
-        if (tmpCtg != null) {
-            tmpCtg.titleText = Transformer().beToJson(
-                LocalizedText(local = title)
+    private suspend fun getPublishPages(pages: List<GQPage>): List<InputPage> {
+        val pageInputs = mutableListOf<InputPage>()
+        for (page in pages) {
+            val categoryInputs = getPublishCategories(
+                page.categories ?: listOf()
             )
-            tmpCtg.items.clear()
-            tmpCtg.items.addAll(items)
-            tmpCtg.items.applyChangesToDb()
-            ctgBox.put(tmpCtg)
-            pageEditing = false
-            queryObTemplate()
-            queryUnpicked()
+            val inputPage = InputPage(
+                categories = Optional.presentIfNotNull(categoryInputs),
+                pagination = page.pagination ?: 0,
+            )
+            pageInputs.add(inputPage)
         }
+        return pageInputs
+    }
+    private suspend fun getPublishCategories(categories: List<GQCategory>): List<InputCategory> {
+        val categoryInputs = mutableListOf<InputCategory>()
+        for (category in categories) {
+            val inputTitle = category.titleText?.let {
+                Transcribe(this).beGetInputText(it)
+            }
+            val inputItems = getPublishItems(category.items ?: listOf())
+            val inputCategory = InputCategory(
+                items = inputItems,
+                sequence = category.sequence ?: 0,
+                titleText = inputTitle ?: InputText(local = "")
+            )
+            categoryInputs.add(inputCategory)
+        }
+        return  categoryInputs
+    }
+    private suspend fun getPublishItems(items: List<MenuItem>): List<InputItem> {
+        val itemInputs = mutableListOf<InputItem>()
+        for (item in items) {
+            val inputIntro = item.introText?.let {
+                Transcribe(this).beGetInputText(it)
+            }
+            val inputName = item.nameText?.let {
+                Transcribe(this).beGetInputText(it)
+            }
+            val customs = getPublishCustomizations(
+                item.customizations ?: listOf()
+            )
+            val inputItem = InputItem(
+                customizations = Optional.presentIfNotNull(customs),
+                introText = Optional.presentIfNotNull(inputIntro),
+                nameText = inputName ?: InputText(local = ""),
+                photo = Optional.presentIfNotNull(item.photo),
+                price = item.price ?: 0.0, quota = item.quota ?: 0,
+                sequence = item.sequence ?: 0, spotId = Optional.presentIfNotNull(item.spotId)
+            )
+            itemInputs.add(inputItem)
+        }
+        return itemInputs
+    }
+    private suspend fun getPublishCustomizations(customizations: List<GQOption>): List<InputItemOption> {
+        val customInputs = mutableListOf<InputItemOption>()
+        for (i in customizations.indices) {
+            val customization = customizations[i]
+            val inputTitle = customization.titleText?.let {
+                Transcribe(this).beGetInputText(it)
+            }
+            val inputCustom = InputItemOption(
+                price = Optional.presentIfNotNull(customization.price),
+                sequence = Optional.presentIfNotNull(i),
+                spotId = Optional.presentIfNotNull(customization.spotId),
+                titleText = Optional.presentIfNotNull(inputTitle)
+            )
+            customInputs.add(inputCustom)
+        }
+        return customInputs
     }
 
-    private fun publish(kitchen: InputKitchen, chefId: String) {
-        Icarus(this).bePublishKitchen(chefId, kitchen) { status, respObj ->
+    private fun publish(
+        kitchen: InputKitchen, chefId: String,
+        complete: (Boolean) -> Unit
+    ) {
+        val mainScope = CoroutineScope(Dispatchers.Main)
+        Icarus(this).bePublishKitchen(chefId, kitchen) { status, _ ->
             when (status) {
-                ApiStatus.SUCCESS -> {
-                    if (respObj != null) {
-                        print("OK")
-                    }
+                ApiStatus.SUCCESS -> mainScope.launch {
+                    complete(true)
                 }
-                ApiStatus.FAILED -> print("Publish error")
+                ApiStatus.FAILED -> mainScope.launch {
+                    complete(false)
+                }
             }
         }
     }
@@ -442,6 +546,10 @@ class EditMenuScenario : Scenario(), EditMenuDirector {
         tell { actSetEdit(category, page) }
     }
 
+    override fun beSaveCategory(title: String, items: List<ObMenuItem>) {
+        tell { actSaveCategory(title, items) }
+    }
+
     override fun beUpdate(title: String, category: ObCategory) {
         tell { actUpdate(title, category) }
     }
@@ -454,11 +562,11 @@ class EditMenuScenario : Scenario(), EditMenuDirector {
         tell { actUpload(complete) }
     }
 
-    override fun bePublish() {
-        TODO("Not yet implemented")
+    override fun bePublish(complete: (Boolean) -> Unit) {
+        tell { actPublish(complete) }
     }
 
     override fun beLowerCurtain() {
-        TODO("Not yet implemented")
+        tell { actLowerCurtain() }
     }
 }

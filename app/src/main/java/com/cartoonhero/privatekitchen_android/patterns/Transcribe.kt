@@ -6,25 +6,24 @@ import com.cartoonhero.privatekitchen_android.props.entities.*
 import com.cartoonhero.privatekitchen_android.props.obEntities.ObAddress
 import com.cartoonhero.theatre.Pattern
 import com.cartoonhero.theatre.Scenario
+import graphqlApollo.client.type.InputAddress
+import graphqlApollo.client.type.InputText
 import graphqlApollo.operation.type.*
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
 class Transcribe(attach: Scenario) : Pattern(attach) {
 
-    private fun actLocalizedTextTo(
-        text: LocalizedText,
-        aJob: CompletableDeferred<InputOpText>
-    ) {
+    private fun actLocalizedTextTo(text: LocalizedText): InputOpText {
+        return InputOpText(
+            local = Optional.presentIfNotNull(text.local)
+        )
+    }
+    private fun actGetInputText(text: LocalizedText, job: CompletableDeferred<InputText?>) {
         launch {
-            val inputText = InputOpText(
-                local = Optional.presentIfNotNull(text.local)
-            )
-            aJob.complete(inputText)
+            val inputText = Transformer().beTransfer<LocalizedText, InputText>(text)
+            job.complete(inputText)
         }
     }
     private fun actGQAddressTo(
@@ -60,8 +59,8 @@ class Transcribe(attach: Scenario) : Pattern(attach) {
             thoroughfare = Optional.presentIfNotNull(address.thoroughfare),
         )
     }
-    fun actGQAddressToInput(address: GQAddress): InputOpAddress {
-        return InputOpAddress(
+    private fun actGQAddressToInput(address: GQAddress): InputAddress {
+        return InputAddress(
             administrativeArea = Optional.presentIfNotNull(address.administrativeArea),
             completion = Optional.presentIfNotNull(address.completion),
             floor = Optional.presentIfNotNull(address.floor),
@@ -82,8 +81,13 @@ class Transcribe(attach: Scenario) : Pattern(attach) {
     suspend fun beLocalizedTextTo(text: LocalizedText): InputOpText {
         val actorJob = CompletableDeferred<InputOpText>()
         tell {
-            actLocalizedTextTo(text,actorJob)
+            actorJob.complete(actLocalizedTextTo(text))
         }
+        return actorJob.await()
+    }
+    suspend fun beGetInputText(text: LocalizedText): InputText? {
+        val actorJob = CompletableDeferred<InputText?>()
+        tell { actGetInputText(text, actorJob) }
         return actorJob.await()
     }
     suspend fun beObAddressToInput(address: ObAddress): InputOpAddress {
@@ -100,8 +104,8 @@ class Transcribe(attach: Scenario) : Pattern(attach) {
         }
         return actorJob.await()
     }
-    suspend fun beGQAddressToInput(address: GQAddress): InputOpAddress {
-        val actorJob = CompletableDeferred<InputOpAddress>()
+    suspend fun beGQAddressToInput(address: GQAddress): InputAddress {
+        val actorJob = CompletableDeferred<InputAddress>()
         tell { actorJob.complete(actGQAddressToInput(address)) }
         return actorJob.await()
     }

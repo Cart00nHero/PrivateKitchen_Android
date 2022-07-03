@@ -11,10 +11,20 @@ query FindWorkstation($uniqueId: String!) {
         phone
       }
       address {
+        administrativeArea
         completion
-        floor
+        isoNationCode
         latitude
+        locality
         longitude
+        nation
+        postalCode
+        subAdministrativeArea
+        subLocality
+        thoroughfare
+        subThoroughfare
+        floor
+        plusCode
       }
     }
     menu {

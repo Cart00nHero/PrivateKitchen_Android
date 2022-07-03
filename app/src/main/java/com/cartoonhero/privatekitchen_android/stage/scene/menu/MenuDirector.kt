@@ -13,9 +13,10 @@ interface EditMenuDirector {
     fun beRemove(page: ObPage)
     fun beRemove(page: ObPage, atCIdx: Int)
     fun beSetEdit(category: ObCategory, page: ObPage)
+    fun beSaveCategory(title: String, items: List<ObMenuItem>)
     fun beUpdate(title: String, category: ObCategory)
     fun bePickUnPick(item: ObMenuItem)
     fun beUpload(complete:(Boolean) -> Unit)
-    fun bePublish()
+    fun bePublish(complete:(Boolean) -> Unit)
     fun beLowerCurtain()
 }
