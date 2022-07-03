@@ -89,7 +89,7 @@ class Helios(private val served: Scenario) : Actor() {
     private fun actDeleteMatchedWorkstations(
         queries: QueryWorkstation,
         complete: (
-            ApiStatus, DeleteMatchedWorkstationsMutation.Data?
+            ApiStatus, List<DeleteMatchedWorkstationsMutation.DeleteMatchedWorkstation?>?
         ) -> Unit
     ) {
         apiScope.launch {
@@ -101,7 +101,7 @@ class Helios(private val served: Scenario) : Actor() {
                         complete(ApiStatus.FAILED, null)
                     }
                     else -> {
-                        complete(ApiStatus.SUCCESS, response.data)
+                        complete(ApiStatus.SUCCESS, response.data?.deleteMatchedWorkstations)
                     }
                 }
             }
@@ -127,6 +127,7 @@ class Helios(private val served: Scenario) : Actor() {
             }
         }
     }
+
     private fun actSaveWorkstationKitchen(
         uniqueId: String, kitchen: InputStKitchen,
         complete: (ApiStatus, SaveWorkstationKitchenMutation.SaveWorkstationKitchen?) -> Unit
@@ -146,6 +147,7 @@ class Helios(private val served: Scenario) : Actor() {
             }
         }
     }
+
     private fun actUpdateWorkstation(
         uniqueId: String, workstation: ModifyWorkstation,
         complete: (ApiStatus, UpdateWorkstationMutation.UpdateWorkstation?) -> Unit
@@ -165,6 +167,7 @@ class Helios(private val served: Scenario) : Actor() {
             }
         }
     }
+
     // MARK: - Dashboard
     private fun actFindDashboard(
         stationId: String,
@@ -185,6 +188,7 @@ class Helios(private val served: Scenario) : Actor() {
             }
         }
     }
+
     private fun actUpdateDashboard(
         stationId: String, dashboard: InputDashboard,
         complete: (ApiStatus, UpdateDashboardMutation.UpdateDashboard?) -> Unit
@@ -204,6 +208,7 @@ class Helios(private val served: Scenario) : Actor() {
             }
         }
     }
+
     // MARK: - Storage
     private fun actFindStorehouse(
         stationId: String,
@@ -224,6 +229,7 @@ class Helios(private val served: Scenario) : Actor() {
             }
         }
     }
+
     private fun actGetDiningWays(
         kitchenId: String,
         complete: (ApiStatus, GetDiningWaysQuery.Data?) -> Unit
@@ -243,8 +249,9 @@ class Helios(private val served: Scenario) : Actor() {
             }
         }
     }
+
     private fun actUpdateStorehouse(
-        stationId: String,storage: InputStorehouse,
+        stationId: String, storage: InputStorehouse,
         complete: (ApiStatus, UpdateStorehouseMutation.UpdateStorehouse?) -> Unit
     ) {
         apiScope.launch {
@@ -262,6 +269,7 @@ class Helios(private val served: Scenario) : Actor() {
             }
         }
     }
+
     // MARK: - Order
     private fun actFindOrderForm(
         uniqueId: String,
@@ -282,6 +290,7 @@ class Helios(private val served: Scenario) : Actor() {
             }
         }
     }
+
     private fun actSearchMatchedOrders(
         queries: QueryOrder,
         complete: (ApiStatus, SearchMatchedOrdersQuery.Data?) -> Unit
@@ -301,6 +310,7 @@ class Helios(private val served: Scenario) : Actor() {
             }
         }
     }
+
     private fun actSearchTimeFrameOrders(
         startDate: Date?, endDate: Date?,
         complete: (ApiStatus, SearchTimeFrameOrdersQuery.Data?) -> Unit
@@ -308,7 +318,7 @@ class Helios(private val served: Scenario) : Actor() {
         if (startDate == null && endDate == null) return
         apiScope.launch {
             val params = getTimeFrame(startDate, endDate)
-            val query = Transformer().beMapToEntity<String,SearchTimeFrameOrdersQuery>(
+            val query = Transformer().beMapToEntity<String, SearchTimeFrameOrdersQuery>(
                 params
             )
             if (query != null) {
@@ -326,20 +336,21 @@ class Helios(private val served: Scenario) : Actor() {
             }
         }
     }
+
     private fun actSearchMatchTimeOrders(
-        startDate: Date? ,endDate: Date?,
+        startDate: Date?, endDate: Date?,
         queries: QueryOrder,
         complete: (ApiStatus, SearchMatchTimeOrdersQuery.Data?) -> Unit
     ) {
         if (startDate == null && endDate == null) return
         apiScope.launch {
             val params = getTimeFrame(startDate, endDate)
-            val timeFrame = Transformer().beMapToEntity<String,OrderTimeFrame>(
+            val timeFrame = Transformer().beMapToEntity<String, OrderTimeFrame>(
                 params
             )
             if (timeFrame != null) {
                 timeFrame.queries = queries
-                val query = Transformer().beTransfer<OrderTimeFrame,SearchMatchTimeOrdersQuery>(
+                val query = Transformer().beTransfer<OrderTimeFrame, SearchMatchTimeOrdersQuery>(
                     timeFrame
                 )
                 if (query != null) {
@@ -358,6 +369,7 @@ class Helios(private val served: Scenario) : Actor() {
             }
         }
     }
+
     private fun actSearchArrivalFrameOrders(
         period: TimePeriod,
         complete: (ApiStatus, SearchArrivalFrameOrdersQuery.Data?) -> Unit
@@ -379,6 +391,7 @@ class Helios(private val served: Scenario) : Actor() {
             }
         }
     }
+
     private fun actSearchMatchArrivalOrders(
         period: TimePeriod, queries: QueryOrder,
         complete: (ApiStatus, SearchMatchArrivalOrdersQuery.Data?) -> Unit
@@ -400,6 +413,7 @@ class Helios(private val served: Scenario) : Actor() {
             }
         }
     }
+
     private fun actCreateOrderForm(
         order: InputOrderForm,
         complete: (ApiStatus, CreateOrderFormMutation.CreateOrderForm?) -> Unit
@@ -419,6 +433,7 @@ class Helios(private val served: Scenario) : Actor() {
             }
         }
     }
+
     private fun actDeleteMatchTimeForms(
         startDate: Date?, endDate: Date?,
         queries: QueryOrder,
@@ -427,15 +442,15 @@ class Helios(private val served: Scenario) : Actor() {
         if (startDate == null && endDate == null) return
         apiScope.launch {
             val params = getTimeFrame(startDate, endDate)
-            val timeFrame = Transformer().beMapToEntity<String,OrderTimeFrame>(
+            val timeFrame = Transformer().beMapToEntity<String, OrderTimeFrame>(
                 params
             )
             if (timeFrame != null) {
                 timeFrame.queries = queries
                 val mutation = Transformer()
-                    .beTransfer<OrderTimeFrame,DeleteMatchTimeFormsMutation>(
-                    timeFrame
-                )
+                    .beTransfer<OrderTimeFrame, DeleteMatchTimeFormsMutation>(
+                        timeFrame
+                    )
                 if (mutation != null) {
                     val response = apolloSun.mutation(mutation).execute()
                     served.tell {
@@ -452,6 +467,7 @@ class Helios(private val served: Scenario) : Actor() {
             }
         }
     }
+
     private fun actDeleteMatchedForms(
         queries: QueryOrder,
         complete: (ApiStatus, DeleteMatchedFormsMutation.Data?) -> Unit
@@ -473,6 +489,7 @@ class Helios(private val served: Scenario) : Actor() {
             }
         }
     }
+
     private fun actDeleteTimeFrameForms(
         startDate: Date?, endDate: Date?,
         complete: (ApiStatus, DeleteTimeFrameFormsMutation.Data?) -> Unit
@@ -480,9 +497,9 @@ class Helios(private val served: Scenario) : Actor() {
         apiScope.launch {
             val params = getTimeFrame(startDate, endDate)
             val mutation = Transformer()
-                .beMapToEntity<String,DeleteTimeFrameFormsMutation>(
-                params
-            )
+                .beMapToEntity<String, DeleteTimeFrameFormsMutation>(
+                    params
+                )
             if (mutation != null) {
                 val response = apolloSun.mutation(mutation).execute()
                 served.tell {
@@ -498,23 +515,24 @@ class Helios(private val served: Scenario) : Actor() {
             }
         }
     }
+
     private fun actUpdateMatchTimeForms(
         startDate: Date?, endDate: Date?,
-        modifies: ModifyOrder,queries: QueryOrder,
+        modifies: ModifyOrder, queries: QueryOrder,
         complete: (ApiStatus, UpdateMatchTimeFormsMutation.Data?) -> Unit
     ) {
         apiScope.launch {
             val params = getTimeFrame(startDate, endDate)
-            val timeFrame = Transformer().beMapToEntity<String,OrderTimeFrame>(
+            val timeFrame = Transformer().beMapToEntity<String, OrderTimeFrame>(
                 params
             )
             if (timeFrame != null) {
                 timeFrame.modifies = modifies
                 timeFrame.queries = queries
                 val mutation = Transformer()
-                    .beTransfer<OrderTimeFrame,UpdateMatchTimeFormsMutation>(
-                    timeFrame
-                )
+                    .beTransfer<OrderTimeFrame, UpdateMatchTimeFormsMutation>(
+                        timeFrame
+                    )
                 if (mutation != null) {
                     val response = apolloSun.mutation(mutation).execute()
                     served.tell {
@@ -531,8 +549,9 @@ class Helios(private val served: Scenario) : Actor() {
             }
         }
     }
+
     private fun actUpdateMatchedForms(
-        modifies: ModifyOrder,queries: QueryOrder,
+        modifies: ModifyOrder, queries: QueryOrder,
         complete: (ApiStatus, UpdateMatchedFormsMutation.Data?) -> Unit
     ) {
         apiScope.launch {
@@ -550,6 +569,7 @@ class Helios(private val served: Scenario) : Actor() {
             }
         }
     }
+
     private fun actUpdateTimeFrameForms(
         startDate: Date?, endDate: Date?,
         complete: (ApiStatus, UpdateTimeFrameFormsMutation.Data?) -> Unit
@@ -558,8 +578,8 @@ class Helios(private val served: Scenario) : Actor() {
             val params = getTimeFrame(startDate, endDate)
             val mutation = Transformer()
                 .beMapToEntity<String, UpdateTimeFrameFormsMutation>(
-                params
-            )
+                    params
+                )
             if (mutation != null) {
                 val response = apolloSun.mutation(mutation).execute()
                 served.tell {
@@ -575,7 +595,10 @@ class Helios(private val served: Scenario) : Actor() {
             }
         }
     }
-    private suspend fun getTimeFrame(startDate: Date?, endDate: Date?): Map<String,String> {
+
+    /** ----------------------------------------------------------------------------------------------------- **/
+
+    private suspend fun getTimeFrame(startDate: Date?, endDate: Date?): Map<String, String> {
         val params: MutableMap<String, String> = mutableMapOf()
         if (startDate != null) {
             params["startDate"] = TimeGuardian().beISO8601(startDate)
@@ -585,13 +608,16 @@ class Helios(private val served: Scenario) : Actor() {
         }
         return params.toMap()
     }
-// public
+
+    /** ----------------------------------------------------------------------------------------------------- **/
+
     fun beFindWorkstation(
         uniqueId: String,
         complete: (ApiStatus, FindWorkstationQuery.FindWorkstation?) -> Unit
     ) {
         tell { actFindWorkstation(uniqueId, complete) }
     }
+
     fun beSearchMatchedWorkstations(
         queries: QueryWorkstation,
         complete: (
@@ -600,111 +626,129 @@ class Helios(private val served: Scenario) : Actor() {
     ) {
         tell { actSearchMatchedWorkstations(queries, complete) }
     }
+
     fun beCreateWorkstation(
         workstation: InputWorkstation,
         complete: (ApiStatus, CreateWorkstationMutation.CreateWorkstation?) -> Unit
     ) {
         tell { actCreateWorkstation(workstation, complete) }
     }
+
     fun beDeleteMatchedWorkstations(
         queries: QueryWorkstation,
         complete: (
-            ApiStatus, DeleteMatchedWorkstationsMutation.Data?
+            ApiStatus, List<DeleteMatchedWorkstationsMutation.DeleteMatchedWorkstation?>?
         ) -> Unit
     ) {
         tell { actDeleteMatchedWorkstations(queries, complete) }
     }
+
     fun beDeleteWorkstation(
         uniqueId: String,
         complete: (ApiStatus, DeleteWorkstationMutation.DeleteWorkstation?) -> Unit
     ) {
         tell { actDeleteWorkstation(uniqueId, complete) }
     }
+
     fun beSaveWorkstationKitchen(
         uniqueId: String, kitchen: InputStKitchen,
         complete: (ApiStatus, SaveWorkstationKitchenMutation.SaveWorkstationKitchen?) -> Unit
     ) {
         tell { actSaveWorkstationKitchen(uniqueId, kitchen, complete) }
     }
+
     fun beUpdateWorkstation(
         uniqueId: String, workstation: ModifyWorkstation,
         complete: (ApiStatus, UpdateWorkstationMutation.UpdateWorkstation?) -> Unit
     ) {
         tell { actUpdateWorkstation(uniqueId, workstation, complete) }
     }
+
     fun beFindDashboard(
         stationId: String,
         complete: (ApiStatus, FindDashboardQuery.FindDashboard?) -> Unit
     ) {
         tell { actFindDashboard(stationId, complete) }
     }
+
     fun beUpdateDashboard(
         stationId: String, dashboard: InputDashboard,
         complete: (ApiStatus, UpdateDashboardMutation.UpdateDashboard?) -> Unit
     ) {
         tell { actUpdateDashboard(stationId, dashboard, complete) }
     }
+
     fun beFindStorehouse(
         stationId: String,
         complete: (ApiStatus, FindStorehouseQuery.FindStorehouse?) -> Unit
     ) {
         tell { actFindStorehouse(stationId, complete) }
     }
+
     fun beGetDiningWays(
         kitchenId: String,
         complete: (ApiStatus, GetDiningWaysQuery.Data?) -> Unit
     ) {
         tell { actGetDiningWays(kitchenId, complete) }
     }
+
     fun beUpdateStorehouse(
-        stationId: String,storage: InputStorehouse,
+        stationId: String, storage: InputStorehouse,
         complete: (ApiStatus, UpdateStorehouseMutation.UpdateStorehouse?) -> Unit
     ) {
         tell { actUpdateStorehouse(stationId, storage, complete) }
     }
+
     fun beFindOrderForm(
         uniqueId: String,
         complete: (ApiStatus, FindOrderFormQuery.FindOrderForm?) -> Unit
     ) {
         tell { actFindOrderForm(uniqueId, complete) }
     }
+
     fun beSearchMatchedOrders(
         queries: QueryOrder,
         complete: (ApiStatus, SearchMatchedOrdersQuery.Data?) -> Unit
     ) {
         tell { actSearchMatchedOrders(queries, complete) }
     }
+
     fun beSearchTimeFrameOrders(
         startDate: Date?, endDate: Date?,
         complete: (ApiStatus, SearchTimeFrameOrdersQuery.Data?) -> Unit
     ) {
         tell { actSearchTimeFrameOrders(startDate, endDate, complete) }
     }
+
     fun beSearchMatchTimeOrders(
-        startDate: Date? ,endDate: Date?,
+        startDate: Date?, endDate: Date?,
         queries: QueryOrder,
         complete: (ApiStatus, SearchMatchTimeOrdersQuery.Data?) -> Unit
     ) {
         tell { actSearchMatchTimeOrders(startDate, endDate, queries, complete) }
     }
+
     fun beSearchArrivalFrameOrders(
         period: TimePeriod,
         complete: (ApiStatus, SearchArrivalFrameOrdersQuery.Data?) -> Unit
     ) {
         tell { actSearchArrivalFrameOrders(period, complete) }
     }
+
     fun beSearchMatchArrivalOrders(
         period: TimePeriod, queries: QueryOrder,
         complete: (ApiStatus, SearchMatchArrivalOrdersQuery.Data?) -> Unit
     ) {
         tell { actSearchMatchArrivalOrders(period, queries, complete) }
     }
+
     fun beCreateOrderForm(
         order: InputOrderForm,
         complete: (ApiStatus, CreateOrderFormMutation.CreateOrderForm?) -> Unit
     ) {
         tell { actCreateOrderForm(order, complete) }
     }
+
     fun beDeleteMatchTimeForms(
         startDate: Date?, endDate: Date?,
         queries: QueryOrder,
@@ -712,31 +756,36 @@ class Helios(private val served: Scenario) : Actor() {
     ) {
         tell { actDeleteMatchTimeForms(startDate, endDate, queries, complete) }
     }
+
     fun beDeleteMatchedForms(
         queries: QueryOrder,
         complete: (ApiStatus, DeleteMatchedFormsMutation.Data?) -> Unit
     ) {
         tell { actDeleteMatchedForms(queries, complete) }
     }
+
     fun beDeleteTimeFrameForms(
         startDate: Date?, endDate: Date?,
         complete: (ApiStatus, DeleteTimeFrameFormsMutation.Data?) -> Unit
     ) {
         tell { actDeleteTimeFrameForms(startDate, endDate, complete) }
     }
+
     fun beUpdateMatchTimeForms(
         startDate: Date?, endDate: Date?,
-        modifies: ModifyOrder,queries: QueryOrder,
+        modifies: ModifyOrder, queries: QueryOrder,
         complete: (ApiStatus, UpdateMatchTimeFormsMutation.Data?) -> Unit
     ) {
         tell { actUpdateMatchTimeForms(startDate, endDate, modifies, queries, complete) }
     }
+
     fun beUpdateMatchedForms(
-        modifies: ModifyOrder,queries: QueryOrder,
+        modifies: ModifyOrder, queries: QueryOrder,
         complete: (ApiStatus, UpdateMatchedFormsMutation.Data?) -> Unit
     ) {
         tell { actUpdateMatchedForms(modifies, queries, complete) }
     }
+
     fun beUpdateTimeFrameForms(
         startDate: Date?, endDate: Date?,
         complete: (ApiStatus, UpdateTimeFrameFormsMutation.Data?) -> Unit

@@ -9,19 +9,24 @@ import kotlinx.coroutines.ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
 @ObsoleteCoroutinesApi
 class Mathematician: Actor() {
+
+    private fun actHaversine(location: Location, range: Float): Boundary {
+        return Haversine().calculateRange(location,range)
+    }
+
+    /** ----------------------------------------------------------------------------------------------------- **/
+
     suspend fun beHaversine(location: Location, range: Float): Boundary {
         val actorJob = CompletableDeferred<Boundary>()
         tell {
-            val result = Haversine().calculateRange(location,range)
-            actorJob.complete(result)
+            actorJob.complete(actHaversine(location, range))
         }
         return actorJob.await()
     }
     suspend fun beCalculateDistance(from: Location, to: Location): Float {
         val actorJob = CompletableDeferred<Float>()
         tell {
-            val distance = from.distanceTo(to)
-            actorJob.complete(distance)
+            actorJob.complete(from.distanceTo(to))
         }
         return actorJob.await()
     }

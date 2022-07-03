@@ -30,7 +30,7 @@ class StorageScenario : Scenario(), StorageDirector {
 
     private fun actShowTime(teleporter: Teleporter) {
         archmage.beSetWaypoint(teleporter)
-        archmage.beSetWaypoint(waypoint)
+        archmage.beSetTeleportation(this.teleportation)
     }
     private fun actCollectParcels() {
         launch {
@@ -296,7 +296,7 @@ class StorageScenario : Scenario(), StorageDirector {
         }
     }
 
-    private val waypoint: Teleporter = object : Teleporter {
+    private val teleportation: Teleporter = object : Teleporter {
         override fun beSpellCraft(spell: Spell) {
             if (spell is MassTeleport) {
                 when (spell.stuff) {

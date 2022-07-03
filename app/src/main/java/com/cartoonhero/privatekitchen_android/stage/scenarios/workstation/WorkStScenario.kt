@@ -19,7 +19,7 @@ class WorkStScenario : Scenario(), WorkStDirector {
     private var wkStation: ObWorkstation? = null
 
     private fun actShowTime(teleporter: Teleporter) {
-        archmage.beSetWaypoint(this.waypoint)
+        archmage.beSetTeleportation(this.teleportation)
         archmage.beSetWaypoint(teleporter)
     }
 
@@ -115,7 +115,7 @@ class WorkStScenario : Scenario(), WorkStDirector {
         archmage.beChant(LiveScene(source.toList()))
     }
 
-    private val waypoint: Teleporter = object : Teleporter {
+    private val teleportation: Teleporter = object : Teleporter {
         override fun beSpellCraft(spell: Spell) {
             if (spell is MassTeleport) {
                 when (spell.stuff) {

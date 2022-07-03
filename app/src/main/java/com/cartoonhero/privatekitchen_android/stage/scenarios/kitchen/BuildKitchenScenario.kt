@@ -78,7 +78,7 @@ class BuildKitchenScenario : Scenario(), BuildKitchenDirector {
             if (savingJob.await()) {
                 val newAddress: ObAddress = wkStation!!.kitchen.target.address.target
                 val iopAddress = Transcribe(this@BuildKitchenScenario)
-                    .beObAddressTo(newAddress)
+                    .beObAddressToInput(newAddress)
                 val inputInfo = InputStKinfo(
                     name = Optional.presentIfNotNull(info.name),
                     phone = Optional.presentIfNotNull(info.phone)

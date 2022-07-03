@@ -1,6 +1,5 @@
 package com.cartoonhero.privatekitchen_android.actors.objBox
 
-import android.content.Context
 import com.cartoonhero.privatekitchen_android.props.mainContext
 import com.cartoonhero.privatekitchen_android.props.obEntities.MyObjectBox
 import com.cartoonhero.theatre.Actor
@@ -12,24 +11,36 @@ import kotlinx.coroutines.ObsoleteCoroutinesApi
 
 @ExperimentalCoroutinesApi
 @ObsoleteCoroutinesApi
-class ObDb: Actor() {
+class ObDb : Actor() {
+
+    private fun actDebut() {
+        ObjBox.createStore()
+    }
+
+    private fun <T> actTakeBox(boxType: Class<T>): Box<T> {
+        return ObjBox.store.boxFor(boxType)
+    }
+
+    /** ----------------------------------------------------------------------------------------------------- **/
+
     fun beDebut() {
         tell {
-            ObjBox.createStore()
+            actDebut()
         }
     }
+
     suspend fun <T> beTakeBox(boxType: Class<T>): Box<T> {
         val actorJob = CompletableDeferred<Box<T>>()
         tell {
-            val theBox = ObjBox.store.boxFor(boxType)
-            actorJob.complete(theBox)
+            actorJob.complete(actTakeBox(boxType))
         }
         return actorJob.await()
     }
 
     private object ObjBox {
-         lateinit var store: BoxStore
+        lateinit var store: BoxStore
             private set
+
         fun createStore() {
             store = MyObjectBox.builder()
                 .androidContext(mainContext.applicationContext).build()

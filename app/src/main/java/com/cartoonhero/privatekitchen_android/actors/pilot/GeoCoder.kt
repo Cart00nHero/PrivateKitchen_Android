@@ -12,34 +12,47 @@ import java.util.*
 
 @ExperimentalCoroutinesApi
 @ObsoleteCoroutinesApi
-class GeoCoder constructor(context: Context): Actor() {
+class GeoCoder constructor(context: Context) : Actor() {
     private val mContext = context
+
+    private fun actGetAddressFrom(addressText: String): Address? {
+        val geoCoder = Geocoder(mContext, Locale.getDefault())
+        val results = geoCoder.getFromLocationName(addressText, 1)
+        return if (results.isNotEmpty()) {
+            val result: Address = results.first()
+            result
+        } else {
+            null
+        }
+    }
+
+    private fun actGetAddressFrom(location: Location, locale: Locale): Address? {
+        val geoCoder = Geocoder(mContext, locale)
+        val results = geoCoder.getFromLocation(
+            location.latitude, location.longitude, 1
+        )
+        return if (results.isNotEmpty()) {
+            val result: Address = results.first()
+            result
+        } else {
+            null
+        }
+    }
+
+    /** ----------------------------------------------------------------------------------------------------- **/
+
     suspend fun beGetAddressFrom(addressText: String): Address? {
         val actorJob = CompletableDeferred<Address?>()
         tell {
-            val geoCoder = Geocoder(mContext, Locale.getDefault())
-            val results = geoCoder.getFromLocationName(addressText,1)
-            if (results.isNotEmpty()) {
-                val result: Address = results.first()
-                actorJob.complete(result)
-            } else {
-                actorJob.complete(null)
-            }
+            actorJob.complete(actGetAddressFrom(addressText))
         }
         return actorJob.await()
     }
-    suspend fun beGetAddressFrom(location: Location, locale: Locale):Address? {
+
+    suspend fun beGetAddressFrom(location: Location, locale: Locale): Address? {
         val actorJob = CompletableDeferred<Address?>()
         tell {
-            val geoCoder = Geocoder(mContext, locale)
-            val results = geoCoder.getFromLocation(
-                location.latitude,location.longitude,1)
-            if (results.isNotEmpty()) {
-                val result: Address = results.first()
-                actorJob.complete(result)
-            } else {
-                actorJob.complete(null)
-            }
+            actorJob.complete(actGetAddressFrom(location, locale))
         }
         return actorJob.await()
     }

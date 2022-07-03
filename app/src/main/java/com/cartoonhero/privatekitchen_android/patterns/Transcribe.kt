@@ -42,7 +42,7 @@ class Transcribe(attach: Scenario) : Pattern(attach) {
             aJob.complete(obAddress)
         }
     }
-    private fun actObAddressTo(address: ObAddress): InputOpAddress {
+    private fun actObAddressToInput(address: ObAddress): InputOpAddress {
         return InputOpAddress(
             administrativeArea = Optional.presentIfNotNull(address.administrativeArea),
             completion = Optional.presentIfNotNull(address.completion),
@@ -60,6 +60,24 @@ class Transcribe(attach: Scenario) : Pattern(attach) {
             thoroughfare = Optional.presentIfNotNull(address.thoroughfare),
         )
     }
+    fun actGQAddressToInput(address: GQAddress): InputOpAddress {
+        return InputOpAddress(
+            administrativeArea = Optional.presentIfNotNull(address.administrativeArea),
+            completion = Optional.presentIfNotNull(address.completion),
+            floor = Optional.presentIfNotNull(address.floor),
+            isoNationCode = Optional.presentIfNotNull(address.isoNationCode),
+            latitude = address.latitude ?: "0.0",
+            locality = Optional.presentIfNotNull(address.locality),
+            longitude = address.longitude ?: "0.0",
+            nation = Optional.presentIfNotNull(address.nation),
+            plusCode = Optional.presentIfNotNull(address.plusCode),
+            postalCode = Optional.presentIfNotNull(address.postalCode),
+            subAdministrativeArea = Optional.presentIfNotNull(address.subAdministrativeArea),
+            subLocality = Optional.presentIfNotNull(address.subLocality),
+            subThoroughfare = Optional.presentIfNotNull(address.subThoroughfare),
+            thoroughfare = Optional.presentIfNotNull(address.thoroughfare),
+        )
+    }
 
     suspend fun beLocalizedTextTo(text: LocalizedText): InputOpText {
         val actorJob = CompletableDeferred<InputOpText>()
@@ -68,10 +86,10 @@ class Transcribe(attach: Scenario) : Pattern(attach) {
         }
         return actorJob.await()
     }
-    suspend fun beObAddressTo(address: ObAddress): InputOpAddress {
+    suspend fun beObAddressToInput(address: ObAddress): InputOpAddress {
         val actorJob = CompletableDeferred<InputOpAddress>()
         tell {
-            actorJob.complete(actObAddressTo(address))
+            actorJob.complete(actObAddressToInput(address))
         }
         return actorJob.await()
     }
@@ -80,6 +98,11 @@ class Transcribe(attach: Scenario) : Pattern(attach) {
         tell {
             actGQAddressTo(address, actorJob)
         }
+        return actorJob.await()
+    }
+    suspend fun beGQAddressToInput(address: GQAddress): InputOpAddress {
+        val actorJob = CompletableDeferred<InputOpAddress>()
+        tell { actorJob.complete(actGQAddressToInput(address)) }
         return actorJob.await()
     }
 }
