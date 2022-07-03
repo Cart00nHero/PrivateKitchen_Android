@@ -1,6 +1,8 @@
 package com.cartoonhero.privatekitchen_android.stage.scene.menu
 
 import com.cartoonhero.privatekitchen_android.actors.archmage.Teleporter
+import com.cartoonhero.privatekitchen_android.props.entities.MenuItem
+import com.cartoonhero.privatekitchen_android.props.entities.OrderItem
 import com.cartoonhero.privatekitchen_android.props.obEntities.ObCategory
 import com.cartoonhero.privatekitchen_android.props.obEntities.ObMenuItem
 import com.cartoonhero.privatekitchen_android.props.obEntities.ObPage
@@ -18,5 +20,14 @@ interface EditMenuDirector {
     fun bePickUnPick(item: ObMenuItem)
     fun beUpload(complete:(Boolean) -> Unit)
     fun bePublish(complete:(Boolean) -> Unit)
+    fun beLowerCurtain()
+}
+interface MenuOrderDirector {
+    fun beShowTime(teleport: Teleporter)
+    fun beCollectParcels()
+    fun beParseToMenuItemVM(items: List<MenuItem>)
+    fun beSetOrder(order: OrderItem, complete: (Boolean) -> Unit)
+    fun bePackOrders(complete: (() -> Unit)?)
+    fun bePackFormData(complete: (() -> Unit)?)
     fun beLowerCurtain()
 }

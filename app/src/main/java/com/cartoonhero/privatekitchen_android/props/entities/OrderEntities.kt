@@ -1,5 +1,26 @@
 package com.cartoonhero.privatekitchen_android.props.entities
 
+import graphqlApollo.operation.type.InputOrderItem
+
+data class OrderData(
+    val kitchen: Kitchen,
+    val orders: MutableList<InputOrderItem> = mutableListOf(),
+)
+data class OrderCost(
+    var itemCosts: Double = 0.0,
+    var customCosts: Double = 0.0
+)
+data class OrderStorage(
+    val costs: MutableMap<String, OrderCost> = mutableMapOf(),
+    val menuItems: MutableList<MenuItem> = mutableListOf(),
+    val sumOfChosen: MutableMap<String, Int> = mutableMapOf()
+)
+data class ErrorOrder(
+    val index: Int,
+    val order: InputOrderItem,
+    val customAmount: Int
+)
+
 // MARK: - OrderForm
 data class OrderForm(
     val uniqueId: String?,
