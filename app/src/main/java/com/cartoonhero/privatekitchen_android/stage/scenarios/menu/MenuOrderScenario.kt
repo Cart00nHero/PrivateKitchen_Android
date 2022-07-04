@@ -100,11 +100,32 @@ class MenuOrderScenario : Scenario(), MenuOrderDirector {
     }
 
     private fun actPackOrders(complete: (() -> Unit)?) {
-
+        if (odrData == null) return
+        if (orderItems.isEmpty()) return
+        launch {
+            odrData!!.orders = orderItems
+            odrData!!.storage = odrStore
+            Courier(this@MenuOrderScenario).beApply(
+                odrData, "OrderAmountScenario"
+            )
+            withContext(Dispatchers.Main) {
+                complete?.let { it() }
+            }
+        }
     }
 
     private fun actPackFormData(complete: (() -> Unit)?) {
-
+        if (odrData == null) return
+        launch {
+            odrData!!.orders = orderItems
+            odrData!!.storage = odrStore
+            Courier(this@MenuOrderScenario).beApply(
+                odrData, "FillFormScenario"
+            )
+            withContext(Dispatchers.Main) {
+                complete?.let { it() }
+            }
+        }
     }
 
     private fun actLowerCurtain() {
@@ -170,7 +191,6 @@ class MenuOrderScenario : Scenario(), MenuOrderDirector {
             }
         }
     }
-
 
     /** ------------------------------------------------------------------------------------------------ **/
 

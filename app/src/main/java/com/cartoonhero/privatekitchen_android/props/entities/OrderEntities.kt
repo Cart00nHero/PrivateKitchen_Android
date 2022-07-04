@@ -4,7 +4,8 @@ import graphqlApollo.operation.type.InputOrderItem
 
 data class OrderData(
     val kitchen: Kitchen,
-    val orders: MutableList<InputOrderItem> = mutableListOf(),
+    var orders: MutableList<InputOrderItem> = mutableListOf(),
+    var storage: OrderStorage = OrderStorage()
 )
 data class OrderCost(
     var itemCosts: Double = 0.0,
