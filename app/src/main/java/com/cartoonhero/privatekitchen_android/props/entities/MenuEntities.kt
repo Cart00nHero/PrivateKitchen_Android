@@ -36,3 +36,7 @@ data class GQOption(
 data class MenuPageVM(
     var page: ObPage?
 )
+data class MenuItemVM(
+    var selected: Boolean = false,
+    val items: MenuItem
+)

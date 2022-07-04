@@ -26,7 +26,7 @@ interface MenuOrderDirector {
     fun beShowTime(teleport: Teleporter)
     fun beCollectParcels()
     fun beParseToMenuItemVM(items: List<MenuItem>)
-    fun beSetOrder(order: OrderItem, complete: (Boolean) -> Unit)
+    fun beSetOrder(order: OrderItem, complete: ((Boolean) -> Unit)?)
     fun bePackOrders(complete: (() -> Unit)?)
     fun bePackFormData(complete: (() -> Unit)?)
     fun beLowerCurtain()
