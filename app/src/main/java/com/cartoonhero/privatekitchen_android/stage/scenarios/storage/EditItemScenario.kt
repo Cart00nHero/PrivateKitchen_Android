@@ -70,7 +70,7 @@ class EditItemScenario : Scenario(), EditItemDirector {
                 val itemBox = ObDb().beTakeBox(ObMenuItem::class.java)
                 itemBox.remove(editItem.id)
                 val action = ModifyItemAction(ModifyType.Delete, editItem)
-                archmage.beChant(MassTeleport(stuff = action))
+                archmage.beChant(MassTeleport(cargo = action))
             }
         }
     }
@@ -90,7 +90,7 @@ class EditItemScenario : Scenario(), EditItemDirector {
         val found = query.findUnique()
         if (found != null) {
             val action = ModifyItemAction(actionType, found)
-            archmage.beChant(MassTeleport(stuff = action))
+            archmage.beChant(MassTeleport(cargo = action))
         }
     }
 

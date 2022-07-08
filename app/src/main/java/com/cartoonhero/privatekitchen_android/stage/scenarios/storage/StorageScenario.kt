@@ -299,9 +299,9 @@ class StorageScenario : Scenario(), StorageDirector {
     private val teleportation: Teleporter = object : Teleporter {
         override fun beSpellCraft(spell: Spell) {
             if (spell is MassTeleport) {
-                when (spell.stuff) {
-                    is ModifyItemAction -> handleModifyItemAction(spell.stuff)
-                    is ModifyOptionAction -> handleModifyOptionAction(spell.stuff)
+                when (spell.cargo) {
+                    is ModifyItemAction -> handleModifyItemAction(spell.cargo)
+                    is ModifyOptionAction -> handleModifyOptionAction(spell.cargo)
                 }
             }
         }

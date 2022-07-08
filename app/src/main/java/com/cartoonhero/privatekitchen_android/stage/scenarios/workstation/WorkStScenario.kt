@@ -118,9 +118,9 @@ class WorkStScenario : Scenario(), WorkStDirector {
     private val teleportation: Teleporter = object : Teleporter {
         override fun beSpellCraft(spell: Spell) {
             if (spell is MassTeleport) {
-                when (spell.stuff) {
+                when (spell.cargo) {
                     is ShowWorkstation -> {
-                        wkStation = spell.stuff.station
+                        wkStation = spell.cargo.station
                         buildSideMenuWith()
                         launch {
                             Courier(this@WorkStScenario).beApply(

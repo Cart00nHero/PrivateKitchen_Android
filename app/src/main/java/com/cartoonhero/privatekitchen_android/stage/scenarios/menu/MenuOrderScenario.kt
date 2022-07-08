@@ -134,7 +134,7 @@ class MenuOrderScenario : Scenario(), MenuOrderDirector {
 
     /** ------------------------------------------------------------------------------------------------ **/
 
-    suspend fun parseOrderItem(item: OrderItem): InputOrderItem {
+    private suspend fun parseOrderItem(item: OrderItem): InputOrderItem {
         val menuJob: Deferred<InputMenuItem> = async {
             val menuIt: MenuItem = item.item
             val inputName = Transcribe(this@MenuOrderScenario).beLocalizedTextTo(
@@ -159,7 +159,7 @@ class MenuOrderScenario : Scenario(), MenuOrderDirector {
         )
     }
 
-    suspend fun parseOptions(options: List<GQOption>): List<InputOption> {
+    private suspend fun parseOptions(options: List<GQOption>): List<InputOption> {
         val inputOpts = mutableListOf<InputOption>()
         for (option in options) {
             val optTitle = Transcribe(this).beLocalizedTextTo(

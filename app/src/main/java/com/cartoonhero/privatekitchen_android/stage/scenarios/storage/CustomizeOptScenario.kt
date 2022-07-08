@@ -76,7 +76,7 @@ class CustomizeOptScenario: Scenario(), CustomizeOptDirector {
                 val optBox = ObDb().beTakeBox(ObOption::class.java)
                 optBox.remove(tmpOpt.id)
                 val action = ModifyOptionAction(ModifyType.Delete, tmpOpt)
-                archmage.beChant(MassTeleport(stuff = action))
+                archmage.beChant(MassTeleport(cargo = action))
             }
         }
     }
@@ -95,7 +95,7 @@ class CustomizeOptScenario: Scenario(), CustomizeOptDirector {
         val found = query.findUnique()
         if (found != null) {
             val action = ModifyOptionAction(type, found)
-            archmage.beChant(MassTeleport(stuff = action))
+            archmage.beChant(MassTeleport(cargo = action))
         }
     }
 
