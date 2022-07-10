@@ -1,6 +1,8 @@
 package com.cartoonhero.privatekitchen_android.props.obEntities
 
+import com.cartoonhero.privatekitchen_android.props.entities.LocalizedText
 import com.cartoonhero.privatekitchen_android.props.generateSpotId
+import com.cartoonhero.privatekitchen_android.props.inlineTools.toEntity
 import io.objectbox.annotation.Backlink
 import io.objectbox.annotation.Entity
 import io.objectbox.annotation.Id
@@ -35,4 +37,8 @@ data class ObCategory(
     lateinit var toPage: ToOne<ObPage>
     @Backlink(to = "toCategory")
     lateinit var items: ToMany<ObMenuItem>
+}
+fun ObCategory.beTitle(): LocalizedText {
+    val localText = this.titleText.toEntity<LocalizedText>()
+    return localText ?: LocalizedText()
 }

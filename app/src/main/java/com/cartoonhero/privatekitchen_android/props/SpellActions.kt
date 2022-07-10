@@ -5,3 +5,10 @@ import com.cartoonhero.privatekitchen_android.props.obEntities.ObWorkstation
 data class ShowWorkstation(
     val station: ObWorkstation
 )
+
+data class EditMenuComplete(
+    val editing: Boolean = false
+)
+data class CorrectCompletion(
+    val completed: Boolean = true
+)

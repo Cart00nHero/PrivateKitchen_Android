@@ -371,7 +371,9 @@ class Icarus(private val served: Scenario) : Actor() {
             }
         }
     }
-    // public
+
+    /** ----------------------------------------------------------------------------------------------------- **/
+
     fun beFindKitchen(
         uniqueId: String,
         complete:(ApiStatus, FindKitchenQuery.FindKitchen?) -> Unit

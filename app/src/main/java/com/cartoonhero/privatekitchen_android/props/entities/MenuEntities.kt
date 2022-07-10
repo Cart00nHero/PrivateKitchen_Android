@@ -1,5 +1,7 @@
 package com.cartoonhero.privatekitchen_android.props.entities
 
+import com.cartoonhero.privatekitchen_android.props.obEntities.ObPage
+
 data class GQMenu(
     val ownerId: String?,
     var deadline: String? = "",
@@ -30,4 +32,11 @@ data class GQOption(
     val spotId: String?,
     var price: Double? = 0.0,
     var titleText: LocalizedText? = LocalizedText()
+)
+data class MenuPageVM(
+    var page: ObPage?
+)
+data class MenuItemVM(
+    var selected: Boolean = false,
+    val items: MenuItem
 )

@@ -4,26 +4,6 @@
 query FindWorkstation($uniqueId: String!) {
   findWorkstation(uniqueId: $uniqueId) {
     uniqueId chefId kitchenId
-    info {
-      chef
-    }
-    kitchen {
-      info {
-        name
-        phone
-      }
-      address {
-        completion
-        floor
-        latitude
-        longitude
-      }
-    }
-  }
-}
-query SearchMatchedWorkstations($queries: QueryWorkstation!) {
-  searchMatchedWorkstations(queries: $queries) {
-    uniqueId chefId kitchenId
     info {chef}
     kitchen {
       info {
@@ -31,10 +11,20 @@ query SearchMatchedWorkstations($queries: QueryWorkstation!) {
         phone
       }
       address {
+        administrativeArea
         completion
-        floor
+        isoNationCode
         latitude
+        locality
         longitude
+        nation
+        postalCode
+        subAdministrativeArea
+        subLocality
+        thoroughfare
+        subThoroughfare
+        floor
+        plusCode
       }
     }
     menu {
@@ -61,6 +51,24 @@ query SearchMatchedWorkstations($queries: QueryWorkstation!) {
       }
     }
 # --------- menu end -----------
+  }
+}
+query SearchMatchedWorkstations($queries: QueryWorkstation!) {
+  searchMatchedWorkstations(queries: $queries) {
+    uniqueId chefId kitchenId
+    info {chef}
+    kitchen {
+      info {
+        name
+        phone
+      }
+      address {
+        completion
+        floor
+        latitude
+        longitude
+      }
+    }
   }
 }
 query FindDashboard($stationId: String!) {

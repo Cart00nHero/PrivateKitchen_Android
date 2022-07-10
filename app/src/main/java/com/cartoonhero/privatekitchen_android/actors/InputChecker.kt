@@ -21,6 +21,8 @@ class InputChecker: Actor() {
         return pattern.containsMatchIn(number)
     }
 
+    /** ----------------------------------------------------------------------------------------------------- **/
+
     suspend fun bePwdStrength(password: String): Boolean {
         val actorJob = CompletableDeferred<Boolean>()
         tell {

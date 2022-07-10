@@ -30,8 +30,9 @@ class StorageScenario : Scenario(), StorageDirector {
 
     private fun actShowTime(teleporter: Teleporter) {
         archmage.beSetWaypoint(teleporter)
-        archmage.beSetWaypoint(waypoint)
+        archmage.beSetTeleportation(this.teleportation)
     }
+
     private fun actCollectParcels() {
         launch {
             val pSet = Courier(this@StorageScenario).beClaim()
@@ -45,6 +46,7 @@ class StorageScenario : Scenario(), StorageDirector {
             }
         }
     }
+
     private fun actRestoreData() {
         val saveStoreJob: Deferred<ObStorehouse?> = async {
             val storeBox = ObDb().beTakeBox(ObStorehouse::class.java)
@@ -87,6 +89,7 @@ class StorageScenario : Scenario(), StorageDirector {
             }
         }
     }
+
     private fun actUploadData(complete: (Boolean) -> Unit) {
         val mainScope = CoroutineScope(Dispatchers.Main)
         if (obStore == null) {
@@ -117,10 +120,12 @@ class StorageScenario : Scenario(), StorageDirector {
             }
         }
     }
+
     private fun actCheckPickUp(source: Set<Long>, spotId: Long, complete: (Boolean) -> Unit) {
         val picked: Boolean = source.contains(spotId)
         CoroutineScope(Dispatchers.Main).launch { complete(picked) }
     }
+
     private fun actSaveCustomItem(optIds: Set<Long>) {
         if (customItem == null) return
         val findJob: Deferred<List<ObOption>> = async {
@@ -147,6 +152,7 @@ class StorageScenario : Scenario(), StorageDirector {
             queryStorehouse()
         }
     }
+
     private fun actSaveData(complete: (() -> Unit)?) {
         if (obStore == null) return
         launch {
@@ -157,6 +163,7 @@ class StorageScenario : Scenario(), StorageDirector {
             }
         }
     }
+
     private fun actAddCustomItem(item: ObMenuItem) {
         if (obStore == null) return
         launch {
@@ -173,6 +180,7 @@ class StorageScenario : Scenario(), StorageDirector {
             }
         }
     }
+
     private fun actEditMenuItem(item: ObMenuItem?, complete: (() -> Unit)?) {
         val editItem: ObMenuItem = item ?: ObMenuItem(id = 0)
         launch {
@@ -183,6 +191,7 @@ class StorageScenario : Scenario(), StorageDirector {
             }
         }
     }
+
     private fun actEditOption(option: ObOption?, complete: (() -> Unit)?) {
         val editOpt: ObOption = option ?: ObOption(id = 0)
         launch {
@@ -191,6 +200,7 @@ class StorageScenario : Scenario(), StorageDirector {
             }
         }
     }
+
     private fun actLowerCurtain() {
         archmage.beShutOff()
     }
@@ -278,9 +288,10 @@ class StorageScenario : Scenario(), StorageDirector {
             ModifyType.Delete -> launch { queryStorehouse() }
         }
     }
+
     private fun handleModifyOptionAction(action: ModifyOptionAction) {
         if (obStore != null) return
-        when(action.modifyType) {
+        when (action.modifyType) {
             ModifyType.Create -> launch {
                 val newOpt: ObOption = action.option
                 val storeBox = ObDb().beTakeBox(ObStorehouse::class.java)
@@ -296,12 +307,12 @@ class StorageScenario : Scenario(), StorageDirector {
         }
     }
 
-    private val waypoint: Teleporter = object : Teleporter {
+    private val teleportation: Teleporter = object : Teleporter {
         override fun beSpellCraft(spell: Spell) {
             if (spell is MassTeleport) {
-                when (spell.stuff) {
-                    is ModifyItemAction -> handleModifyItemAction(spell.stuff)
-                    is ModifyOptionAction -> handleModifyOptionAction(spell.stuff)
+                when (spell.cargo) {
+                    is ModifyItemAction -> handleModifyItemAction(spell.cargo)
+                    is ModifyOptionAction -> handleModifyOptionAction(spell.cargo)
                 }
             }
         }

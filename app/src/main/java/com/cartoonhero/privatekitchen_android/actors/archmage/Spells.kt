@@ -3,7 +3,7 @@ package com.cartoonhero.privatekitchen_android.actors.archmage
 interface Spell
 
 data class MassTeleport(
-    val stuff: Any
+    val cargo: Any
 ): Spell
 data class LiveScene(
     val prop: Any

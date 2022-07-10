@@ -14,15 +14,22 @@ import kotlinx.coroutines.*
 class Pilot constructor(private val context: Context) : Actor() {
     private val locationManager =
         context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    suspend fun beCheckPermission(): Boolean {
-        val actorJob = CompletableDeferred<Boolean>()
-        tell {
-            val permitted: Boolean = checkPermission()
-            actorJob.complete(permitted)
+
+    private fun actCheckPermission(): Boolean {
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return false
         }
-        return actorJob.await()
+        return true
     }
-    fun beRequestPermission(activity: Activity) {
+
+    private fun actRequestPermission(activity: Activity) {
         CoroutineScope(Dispatchers.Main).launch {
             val permissionId = 1000
             ActivityCompat.requestPermissions(
@@ -35,17 +42,18 @@ class Pilot constructor(private val context: Context) : Actor() {
             )
         }
     }
-    private fun checkPermission(): Boolean {
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return false
+
+    /** ----------------------------------------------------------------------------------------------------- **/
+
+    suspend fun beCheckPermission(): Boolean {
+        val actorJob = CompletableDeferred<Boolean>()
+        tell {
+            actorJob.complete(actCheckPermission())
         }
-        return true
+        return actorJob.await()
+    }
+
+    fun beRequestPermission(activity: Activity) {
+        tell { actRequestPermission(activity) }
     }
 }

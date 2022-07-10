@@ -25,6 +25,7 @@ class TemplateTransfer(attach: Scenario) : Pattern(attach) {
         fromObj = from
         toObj = ObTemplate(id = 0, ownerId = from.ownerId)
     }
+
     private fun actTransfer(myJob: CompletableDeferred<ObTemplate>) {
         launch {
             if (cleanDB()) {
@@ -36,6 +37,9 @@ class TemplateTransfer(attach: Scenario) : Pattern(attach) {
             }
         }
     }
+
+    /** ------------------------------------------------------------------------------------------------ **/
+
     private suspend fun cleanDB(): Boolean {
         val tempBox = ObDb().beTakeBox(ObTemplate::class.java)
         val pageBox = ObDb().beTakeBox(ObPage::class.java)
@@ -45,13 +49,15 @@ class TemplateTransfer(attach: Scenario) : Pattern(attach) {
         tempBox.removeAll()
         return true
     }
-    suspend fun startTransfer() {
+
+    private suspend fun startTransfer() {
         val pages: List<ObPage> = transfer(fromObj.pages ?: listOf())
         val tempBox = ObDb().beTakeBox(ObTemplate::class.java)
         toObj.pages.addAll(pages)
         toObj.pages.applyChangesToDb()
         tempBox.put(toObj)
     }
+
     private suspend fun transfer(pages: List<GQPage>): List<ObPage> {
         val obPages: MutableList<ObPage> = mutableListOf()
         for (i in pages.indices) {
@@ -74,6 +80,7 @@ class TemplateTransfer(attach: Scenario) : Pattern(attach) {
         pageBox.put(newPages)
         return pageBox.all
     }
+
     private suspend fun transfer(categories: List<GQCategory>, page: ObPage): List<ObCategory> {
         val obCategories: MutableList<ObCategory> = mutableListOf()
         for (i in categories.indices) {
@@ -100,7 +107,8 @@ class TemplateTransfer(attach: Scenario) : Pattern(attach) {
         }
         return newCategories
     }
-    suspend fun transfer(items: List<MenuItem>, category: ObCategory): List<ObMenuItem> {
+
+    private suspend fun transfer(items: List<MenuItem>, category: ObCategory): List<ObMenuItem> {
         val obItems: MutableList<ObMenuItem> = mutableListOf()
         val itemBox = ObDb().beTakeBox(ObMenuItem::class.java)
         for (item in items) {
@@ -118,9 +126,12 @@ class TemplateTransfer(attach: Scenario) : Pattern(attach) {
         return obItems
     }
 
+    /** ------------------------------------------------------------------------------------------------ **/
+
     fun beSet(from: Template) {
         tell { actSet(from) }
     }
+
     suspend fun beTransfer(): ObTemplate? {
         val actorJob = CompletableDeferred<ObTemplate>()
         tell { actTransfer(actorJob) }
