@@ -4,10 +4,6 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 
-data class Parcel<T>(
-    val sender: String,
-    val content: T
-)
 @ExperimentalCoroutinesApi
 @ObsoleteCoroutinesApi
 class Courier(private val served: Scenario) : Actor() {

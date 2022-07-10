@@ -49,27 +49,19 @@ class Archmage(private val destination: Scenario) : Actor() {
     /** ----------------------------------------------------------------------------------------------------- **/
 
     fun beSetTeleportation(teleporter: Teleporter) {
-        tell {
-            actSetTeleportation(teleporter)
-        }
+        tell { actSetTeleportation(teleporter) }
     }
 
     fun beSetWaypoint(wayPoint: Teleporter) {
-        tell {
-            actSetWaypoint(wayPoint)
-        }
+        tell { actSetWaypoint(wayPoint) }
     }
 
     fun beChant(spell: Spell) {
-        tell {
-            actChant(spell)
-        }
+        tell { actChant(spell) }
     }
 
     fun beShutOff() {
-        tell {
-            actShutOff()
-        }
+        tell { actShutOff() }
     }
 
     private object Teleportation {

@@ -8,10 +8,10 @@ import kotlinx.coroutines.ObsoleteCoroutinesApi
 
 @ExperimentalCoroutinesApi
 @ObsoleteCoroutinesApi
-class Mathematician: Actor() {
+class Mathematician : Actor() {
 
     private fun actHaversine(location: Location, range: Float): Boundary {
-        return Haversine().calculateRange(location,range)
+        return Haversine().calculateRange(location, range)
     }
 
     /** ----------------------------------------------------------------------------------------------------- **/
@@ -23,6 +23,7 @@ class Mathematician: Actor() {
         }
         return actorJob.await()
     }
+
     suspend fun beCalculateDistance(from: Location, to: Location): Float {
         val actorJob = CompletableDeferred<Float>()
         tell {
