@@ -21,7 +21,7 @@ import kotlinx.coroutines.*
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
 class MenuOrderScenario : Scenario(), MenuOrderDirector {
-    private var odrData: OrderData? = null
+    private lateinit var odrData: OrderData
     private var orderItems: MutableList<InputOrderItem> = mutableListOf()
     private var odrStore: OrderStorage = OrderStorage()
     private val archmage: Archmage by lazy {
@@ -100,11 +100,10 @@ class MenuOrderScenario : Scenario(), MenuOrderDirector {
     }
 
     private fun actPackOrders(complete: (() -> Unit)?) {
-        if (odrData == null) return
         if (orderItems.isEmpty()) return
         launch {
-            odrData!!.orders = orderItems
-            odrData!!.storage = odrStore
+            odrData.orders = orderItems
+            odrData.storage = odrStore
             Courier(this@MenuOrderScenario).beApply(
                 odrData, "OrderAmountScenario"
             )
@@ -115,10 +114,9 @@ class MenuOrderScenario : Scenario(), MenuOrderDirector {
     }
 
     private fun actPackFormData(complete: (() -> Unit)?) {
-        if (odrData == null) return
         launch {
-            odrData!!.orders = orderItems
-            odrData!!.storage = odrStore
+            odrData.orders = orderItems
+            odrData.storage = odrStore
             Courier(this@MenuOrderScenario).beApply(
                 odrData, "FillFormScenario"
             )

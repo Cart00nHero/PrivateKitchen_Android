@@ -167,6 +167,7 @@ class EditMenuScenario : Scenario(), EditMenuDirector {
             archmage.beChant(LiveScene(PickedItems(picked)))
         }
     }
+
     private fun actSaveCategory(title: String, items: List<ObMenuItem>) {
         if (!pageEditing) return
         launch {
@@ -259,7 +260,7 @@ class EditMenuScenario : Scenario(), EditMenuDirector {
     private fun actPublish(complete: (Boolean) -> Unit) {
         Helios(this@EditMenuScenario)
             .beFindWorkstation(stationId) { status, respObj ->
-                when(status) {
+                when (status) {
                     ApiStatus.SUCCESS -> {
                         val addressJob: Deferred<InputAddress> = async {
                             var inputAddress = InputAddress(latitude = "0.0", longitude = "0.0")
@@ -269,7 +270,8 @@ class EditMenuScenario : Scenario(), EditMenuDirector {
                                         respObj.kitchen.address
                                     )
                                 if (address != null) {
-                                    inputAddress = Transcribe(this@EditMenuScenario).beGQAddressToInput(address)
+                                    inputAddress =
+                                        Transcribe(this@EditMenuScenario).beGQAddressToInput(address)
                                 }
                             }
                             inputAddress
@@ -308,6 +310,7 @@ class EditMenuScenario : Scenario(), EditMenuDirector {
                 }
             }
     }
+
     private fun actLowerCurtain() {
         archmage.beShutOff()
     }
@@ -335,7 +338,7 @@ class EditMenuScenario : Scenario(), EditMenuDirector {
 
     private fun syncMenu() {
         Helios(this).beFindWorkstation(stationId) { status, respData ->
-            when(status) {
+            when (status) {
                 ApiStatus.SUCCESS -> launch {
                     if (respData?.menu != null) {
                         val newMenu = Transformer()
@@ -441,6 +444,7 @@ class EditMenuScenario : Scenario(), EditMenuDirector {
         }
         return pageInputs
     }
+
     private suspend fun getPublishCategories(categories: List<GQCategory>): List<InputCategory> {
         val categoryInputs = mutableListOf<InputCategory>()
         for (category in categories) {
@@ -455,8 +459,9 @@ class EditMenuScenario : Scenario(), EditMenuDirector {
             )
             categoryInputs.add(inputCategory)
         }
-        return  categoryInputs
+        return categoryInputs
     }
+
     private suspend fun getPublishItems(items: List<MenuItem>): List<InputItem> {
         val itemInputs = mutableListOf<InputItem>()
         for (item in items) {
@@ -481,6 +486,7 @@ class EditMenuScenario : Scenario(), EditMenuDirector {
         }
         return itemInputs
     }
+
     private suspend fun getPublishCustomizations(customizations: List<GQOption>): List<InputItemOption> {
         val customInputs = mutableListOf<InputItemOption>()
         for (i in customizations.indices) {

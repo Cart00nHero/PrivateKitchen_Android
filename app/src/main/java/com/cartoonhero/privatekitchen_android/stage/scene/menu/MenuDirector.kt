@@ -1,6 +1,7 @@
 package com.cartoonhero.privatekitchen_android.stage.scene.menu
 
 import com.cartoonhero.privatekitchen_android.actors.archmage.Teleporter
+import com.cartoonhero.privatekitchen_android.props.entities.ErrorOrder
 import com.cartoonhero.privatekitchen_android.props.entities.MenuItem
 import com.cartoonhero.privatekitchen_android.props.entities.OrderItem
 import com.cartoonhero.privatekitchen_android.props.obEntities.ObCategory
@@ -9,6 +10,7 @@ import com.cartoonhero.privatekitchen_android.props.obEntities.ObPage
 import graphqlApollo.operation.type.InputChoice
 import graphqlApollo.operation.type.InputOption
 import graphqlApollo.operation.type.InputOrderItem
+import java.lang.Error
 
 interface EditMenuDirector {
     fun beShowTime(teleport: Teleporter)
@@ -52,8 +54,8 @@ interface CustomOdrDirector {
         complete: (InputChoice) -> Unit
     )
     fun beUnPickOption(
-        option: InputOption, idx: Int, choice: InputChoice, tabIdx: Int,
-        complete: (InputChoice, Int) -> Unit
+        option: InputOption, idx: Int, choice: InputChoice,
+        tabIdx: Int, complete: (InputChoice, Int) -> Unit
     )
     fun beOrderAmount(complete: (Int) -> Unit)
     fun beIncrease(
@@ -64,4 +66,13 @@ interface CustomOdrDirector {
     fun beSyncTabIndex(tabIndex: Int, complete: (Int, InputChoice) -> Unit)
     fun beStoreTotalRemain(remain: Int)
     fun beCustomize(complete: (() -> Unit)?)
+}
+
+interface CorrectOrderDirector {
+    fun beShowTime(teleport: Teleporter)
+    fun beCollectErrorOrders()
+    fun bePackErrorOrders(error: ErrorOrder, complete: (() -> Unit)?)
+    fun beCheckErrors(errors: List<ErrorOrder>, complete: (List<ErrorOrder>) -> Unit)
+    fun beSendBack(complete: (() -> Unit)?)
+    fun beLowerCurtain()
 }

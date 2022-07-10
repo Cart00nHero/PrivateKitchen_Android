@@ -16,7 +16,7 @@ import kotlinx.coroutines.*
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
-class CustomizeOptScenario: Scenario(), CustomizeOptDirector {
+class CustomizeOptScenario : Scenario(), CustomizeOptDirector {
     private var sequence: Int = -1
     private var editType: EditType = EditType.Modify
     private lateinit var editOption: ObOption
@@ -27,11 +27,12 @@ class CustomizeOptScenario: Scenario(), CustomizeOptDirector {
     private fun actShowTime(teleporter: Teleporter) {
         archmage.beSetWaypoint(teleporter)
     }
+
     private fun actCollectParcels() {
         launch {
             val pSet = Courier(this@CustomizeOptScenario).beClaim()
             for (parcel in pSet) {
-                when(val content = parcel.content) {
+                when (val content = parcel.content) {
                     is ObOption -> {
                         editOption = content
                         editType = if (content.id.equals(0)) {
@@ -49,6 +50,7 @@ class CustomizeOptScenario: Scenario(), CustomizeOptDirector {
             }
         }
     }
+
     private fun actUpdate(optFile: ObOptFile, remove: Boolean) {
         val getOptJob: Deferred<ObOption> = async {
             val tmpOpt = optFile.option
@@ -61,7 +63,7 @@ class CustomizeOptScenario: Scenario(), CustomizeOptDirector {
             editType = EditType.Remove
             archmage.beChant(LiveScene(prop = editType))
         }
-        when(editType) {
+        when (editType) {
             EditType.Add -> launch {
                 val tmpOpt = getOptJob.await()
                 prepareModify(tmpOpt, ModifyType.Create)
@@ -80,6 +82,7 @@ class CustomizeOptScenario: Scenario(), CustomizeOptDirector {
             }
         }
     }
+
     private fun actLowerCurtain() {
         archmage.beShutOff()
     }

@@ -9,3 +9,6 @@ data class ShowWorkstation(
 data class EditMenuComplete(
     val editing: Boolean = false
 )
+data class CorrectCompletion(
+    val completed: Boolean = true
+)

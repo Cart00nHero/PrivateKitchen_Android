@@ -16,11 +16,12 @@ import kotlinx.coroutines.*
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
-class CustomOdrScenario: Scenario(), CustomOdrDirector {
+class CustomOdrScenario : Scenario(), CustomOdrDirector {
     data class MyCargo(
         var odrItem: InputOrderItem? = null,
         var storage: OrderStorage? = null
     )
+
     private var itemIndex: Int = 0
     lateinit var odrItem: InputOrderItem
     lateinit var odrStore: OrderStorage
@@ -33,7 +34,7 @@ class CustomOdrScenario: Scenario(), CustomOdrDirector {
             val cargo = MyCargo()
             val pSet = Courier(this@CustomOdrScenario).beClaim()
             for (parcel in pSet) {
-                when(val content = parcel.content) {
+                when (val content = parcel.content) {
                     is Int -> itemIndex = content
                     is InputOrderItem -> {
                         odrItem = content
@@ -58,6 +59,7 @@ class CustomOdrScenario: Scenario(), CustomOdrDirector {
             }
         }
     }
+
     private fun actAddChoice(choice: InputChoice, complete: (() -> Unit)?) {
         val customize: List<InputChoice?> = odrItem.customize.getOrNull() ?: listOf()
         val newCustoms: MutableList<InputChoice?> = customize.toMutableList()
@@ -67,6 +69,7 @@ class CustomOdrScenario: Scenario(), CustomOdrDirector {
             complete?.let { it() }
         }
     }
+
     private fun actRemoveTab(
         tabIdx: Int, chosen: InputChoice,
         complete: ((idx: Int, amount: Int) -> Unit)?
@@ -87,6 +90,7 @@ class CustomOdrScenario: Scenario(), CustomOdrDirector {
             }
         }
     }
+
     private fun actPickOption(
         option: InputOption, choice: InputChoice,
         tabIdx: Int, complete: (InputChoice) -> Unit
@@ -139,6 +143,7 @@ class CustomOdrScenario: Scenario(), CustomOdrDirector {
             }
         }
     }
+
     private fun actOrderAmount(complete: (Int) -> Unit) {
         CoroutineScope(Dispatchers.Main).launch {
             complete(odrItem.quantity)
@@ -156,6 +161,7 @@ class CustomOdrScenario: Scenario(), CustomOdrDirector {
             quantity = odrItem.quantity
         )
     }
+
     private fun getNewChoice(amount: Int, cost: Double): InputChoice {
         return InputChoice(
             amount = amount,
@@ -163,6 +169,7 @@ class CustomOdrScenario: Scenario(), CustomOdrDirector {
             cost = cost
         )
     }
+
     private fun updateChosenOptions(chosen: InputChoice, options: List<InputOption?>): InputChoice {
         return InputChoice(
             amount = chosen.amount,
@@ -170,6 +177,7 @@ class CustomOdrScenario: Scenario(), CustomOdrDirector {
             cost = chosen.cost
         )
     }
+
     private fun actIncrease(
         value: Int, chosen: InputChoice,
         idx: Int, complete: (Int, InputChoice) -> Unit
@@ -185,6 +193,7 @@ class CustomOdrScenario: Scenario(), CustomOdrDirector {
             odrItem = updateInputOrder(customize)
         }
     }
+
     private fun actCalculateChosen(chosen: InputChoice, tabIdx: Int) {
         val customize: MutableList<InputChoice?> = odrItem.customize
             .getOrNull()?.toMutableList() ?: mutableListOf()
@@ -200,6 +209,7 @@ class CustomOdrScenario: Scenario(), CustomOdrDirector {
             odrItem = updateInputOrder(customize)
         }
     }
+
     private fun actSyncTabIndex(tabIndex: Int, complete: (Int, InputChoice) -> Unit) {
         val customize: List<InputChoice?> = odrItem.customize.getOrNull() ?: listOf()
         val total: Int = customize.size
@@ -212,6 +222,7 @@ class CustomOdrScenario: Scenario(), CustomOdrDirector {
             }
         }
     }
+
     private fun actStoreTotalRemain(remain: Int) {
         launch {
             val total: Int = odrItem.quantity - remain
@@ -221,6 +232,7 @@ class CustomOdrScenario: Scenario(), CustomOdrDirector {
             archmage.beChant(MassTeleport(cargo = chosen))
         }
     }
+
     private fun actCustomize(complete: (() -> Unit)?) {
         launch {
             val customize: MutableList<InputChoice?> = odrItem.customize

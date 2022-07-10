@@ -11,11 +11,16 @@ import kotlinx.coroutines.*
 
 @ObsoleteCoroutinesApi
 @ExperimentalCoroutinesApi
-class OrderAmountScenario : Scenario(), OrderAmountDirector, Teleporter {
+class OrderAmountScenario : Scenario(), OrderAmountDirector {
     lateinit var orderData: OrderData
     lateinit var odrStore: OrderStorage
     private val archmage: Archmage by lazy {
         Archmage(this)
+    }
+
+    private fun actShowTime(teleport: Teleporter) {
+        archmage.beSetWaypoint(teleport)
+        archmage.beSetTeleportation(teleportation)
     }
 
     private fun actCollectParcels(complete: (List<InputOrderItem>, List<MenuItem>) -> Unit) {
@@ -67,6 +72,7 @@ class OrderAmountScenario : Scenario(), OrderAmountDirector, Teleporter {
             errorIndexes
         }
         launch {
+            orderData.orders.clear()
             orderData.orders.addAll(orders)
             orderData.storage = odrStore
             val courier = Courier(this@OrderAmountScenario)
@@ -99,12 +105,37 @@ class OrderAmountScenario : Scenario(), OrderAmountDirector, Teleporter {
         archmage.beShutOff()
     }
 
+    private val teleportation: Teleporter = object : Teleporter {
+        override fun beSpellCraft(spell: Spell) {
+            if (spell is MassTeleport) {
+                when (val cargo = spell.cargo) {
+                    is CalculateCustom -> {
+                        val order: InputOrderItem = cargo.odrItem
+                        val choices: List<InputChoice?> = order.customize.getOrNull() ?: listOf()
+                        var costValue: Double = 0.0
+                        for (chosen in choices) {
+                            costValue += chosen?.cost ?: 0.0
+                        }
+                        odrStore.costs[order.item.spotId]?.customCosts = costValue
+                        archmage.beChant(LiveList(cargo.index, cargo.index))
+                    }
+                    is UpdateTotalChosen -> {
+                        if (cargo.total <= 0) {
+                            odrStore.sumOfChosen.remove(cargo.spotId)
+                        } else {
+                            odrStore.sumOfChosen[cargo.spotId] = cargo.total
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     /** ------------------------------------------------------------------------------------------------ **/
 
     override fun beShowTime(teleport: Teleporter) {
-        archmage.beSetWaypoint(teleport)
-        archmage.beSetTeleportation(this)
+        tell { actShowTime(teleport) }
     }
 
     override fun beCollectParcels(complete: (List<InputOrderItem>, List<MenuItem>) -> Unit) {
@@ -129,30 +160,6 @@ class OrderAmountScenario : Scenario(), OrderAmountDirector, Teleporter {
 
     override fun beLowerCurtain() {
         tell { actLowerCurtain() }
-    }
-
-    override fun beSpellCraft(spell: Spell) {
-        if (spell is MassTeleport) {
-            when(val stuff = spell.cargo) {
-                is CalculateCustom -> {
-                    val order: InputOrderItem = stuff.odrItem
-                    val choices: List<InputChoice?> = order.customize.getOrNull() ?: listOf()
-                    var costValue: Double = 0.0
-                    for (chosen in choices) {
-                        costValue += chosen?.cost ?: 0.0
-                    }
-                    odrStore.costs[order.item.spotId]?.customCosts  = costValue
-                    archmage.beChant(LiveList(stuff.index, stuff.index))
-                }
-                is UpdateTotalChosen -> {
-                    if (stuff.total <= 0) {
-                        odrStore.sumOfChosen.remove(stuff.spotId)
-                    } else {
-                        odrStore.sumOfChosen[stuff.spotId] = stuff.total
-                    }
-                }
-            }
-        }
     }
 
 }
