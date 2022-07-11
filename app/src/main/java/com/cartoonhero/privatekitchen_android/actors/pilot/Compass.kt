@@ -1,79 +1,87 @@
 package com.cartoonhero.privatekitchen_android.actors.pilot
 
 import android.Manifest
+import android.app.Service
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Location
 import android.location.LocationManager
+import android.os.Binder
+import android.os.IBinder
 import androidx.core.app.ActivityCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-object Compass {
-    private lateinit var locationManager: LocationManager
-    private val pilotListeners: HashSet<PilotInterface> = hashSetOf()
+class Compass : Service() {
+    private val locationManager =
+        this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    private val compassListeners: HashSet<CompassListener> = hashSetOf()
 
-    fun createManager(context: Context) {
-        locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    inner class ServiceBinder : Binder() {
+        val compass: Compass get() = this@Compass
     }
-    fun setListener(listener: PilotInterface) {
-        if (!pilotListeners.contains(listener)) {
-            pilotListeners.add(listener)
+
+    override fun onBind(intent: Intent): IBinder {
+        return ServiceBinder()
+    }
+
+    fun setListener(listener: CompassListener) {
+        if (!compassListeners.contains(listener)) {
+            compassListeners.add(listener)
         }
     }
-    private fun checkPermission(context: Context): Boolean {
-        var permitted = true
+
+    fun removeListener(listener: CompassListener) {
+        compassListeners.remove(listener)
+    }
+
+    fun checkPermission(): Boolean {
         if (ActivityCompat.checkSelfPermission(
-                context,
+                this,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                context,
+                this,
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            permitted = false
+            return false
         }
-        CoroutineScope(Dispatchers.Default).launch {
-            for (listener in pilotListeners) {
-                listener.didPermitted(permitted)
-            }
-        }
-        return permitted
+        return true
     }
 
-    fun requestLocationUpdates(context: Context, minTime: Long, minDistance: Float) {
-        if (!checkPermission(context)) return
+    fun requestLocationUpdates(minTime: Long, minDistance: Float) {
+        if (!checkPermission()) return
         val gps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         val network = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
         if (gps || network) {
             val mainScope = CoroutineScope(Dispatchers.Main)
             when {
+                // fix:
+                // Can't create handler inside thread Thread[DefaultDispatcher-worker-2,5,main]
+                // that has not called Looper.prepare()
                 gps -> mainScope.launch {
-                    // fix:
-                    // Can't create handler inside thread Thread[DefaultDispatcher-worker-2,5,main]
-                    // that has not called Looper.prepare()
                     locationManager.requestLocationUpdates(
                         LocationManager.GPS_PROVIDER, minTime, minDistance
                     ) {
-                        CoroutineScope(Dispatchers.Default).launch {
-                            for (listener in pilotListeners) {
-                                listener.didUpdateLocation(it)
-                            }
-                        }
+                        compassDidUpdated(it)
                     }
                 }
                 network -> mainScope.launch {
                     locationManager.requestLocationUpdates(
                         LocationManager.NETWORK_PROVIDER, minTime, minDistance
                     ) {
-                        CoroutineScope(Dispatchers.Default).launch {
-                            for (listener in pilotListeners) {
-                                listener.didUpdateLocation(it)
-                            }
-                        }
+                        compassDidUpdated(it)
                     }
                 }
             }
+        }
+    }
+
+    private fun compassDidUpdated(location: Location) {
+        for (listener in compassListeners) {
+            listener.didUpdateLocation(location)
         }
     }
 }

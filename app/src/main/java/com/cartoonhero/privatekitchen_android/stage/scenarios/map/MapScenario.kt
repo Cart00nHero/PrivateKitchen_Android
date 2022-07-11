@@ -1,4 +1,4 @@
-package com.cartoonhero.privatekitchen_android.stage.scenarios
+package com.cartoonhero.privatekitchen_android.stage.scenarios.map
 
 import android.app.Activity
 import android.location.Location
@@ -26,8 +26,7 @@ class MapScenario(private val activity: Activity) : Scenario(), MapDirector {
     private fun actShowTime(teleport: Teleporter) {
         archmage.beSetWaypoint(teleport)
         archmage.beSetTeleportation(teleportation)
-        pilot.beSetListener(pilotListener)
-        pilot.beCheckPermission()
+        pilot.beComeOn(pilotListener)
     }
 
     private fun actNewLocation() {
@@ -36,6 +35,7 @@ class MapScenario(private val activity: Activity) : Scenario(), MapDirector {
 
     private fun actLowerCurtain() {
         archmage.beShutOff()
+        pilot.beStepDown()
     }
 
     private fun pilotDidPermitted(permitted: Boolean) {
@@ -53,6 +53,13 @@ class MapScenario(private val activity: Activity) : Scenario(), MapDirector {
     /** ----------------------------------------------------------------------------------------------------- **/
 
     private val pilotListener: PilotInterface = object : PilotInterface {
+        override fun onCompassConnected() {
+            tell { pilot.beCheckPermission() }
+        }
+
+        override fun onCompassDisconnected() {
+        }
+
         override fun didPermitted(permitted: Boolean) {
             tell { pilotDidPermitted(permitted) }
         }

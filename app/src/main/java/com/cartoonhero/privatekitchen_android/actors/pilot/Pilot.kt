@@ -2,9 +2,12 @@ package com.cartoonhero.privatekitchen_android.actors.pilot
 
 import android.Manifest
 import android.app.Activity
+import android.content.ComponentName
 import android.content.Context
-import android.content.pm.PackageManager
-import android.location.LocationManager
+import android.content.Intent
+import android.content.ServiceConnection
+import android.location.Location
+import android.os.IBinder
 import androidx.core.app.ActivityCompat
 import com.cartoonhero.theatre.Actor
 import kotlinx.coroutines.*
@@ -12,16 +15,18 @@ import kotlinx.coroutines.*
 @ExperimentalCoroutinesApi
 @ObsoleteCoroutinesApi
 class Pilot constructor(private val context: Context) : Actor() {
-    private val locationManager =
-        context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    private lateinit var compass: Compass
     private lateinit var pilotListener: PilotInterface
 
-    private fun actSetListener(listener: PilotInterface) {
+    private fun actComeOn(listener: PilotInterface) {
         pilotListener = listener
+        val intent = Intent()
+        intent.setClass(context, Compass::class.java)
+        context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
     }
 
     private fun actCheckPermission() {
-        pilotListener.didPermitted(checkPermission())
+        pilotListener.didPermitted(compass.checkPermission())
     }
 
     private fun actRequestPermission(activity: Activity) {
@@ -39,54 +44,41 @@ class Pilot constructor(private val context: Context) : Actor() {
     }
 
     private fun actRequestLocationUpdates(minTime: Long, minDistance: Float) {
-        if (!checkPermission()) return
-        val gps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-        val network = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-        if (gps || network) {
-            val mainScope = CoroutineScope(Dispatchers.Main)
-            when {
-                gps -> mainScope.launch {
-                    // fix:
-                    // Can't create handler inside thread Thread[DefaultDispatcher-worker-2,5,main]
-                    // that has not called Looper.prepare()
-                    locationManager.requestLocationUpdates(
-                        LocationManager.GPS_PROVIDER, minTime, minDistance
-                    ) {
-                        pilotListener.didUpdateLocation(it)
-                    }
-                }
-                network -> mainScope.launch {
-                    locationManager.requestLocationUpdates(
-                        LocationManager.NETWORK_PROVIDER, minTime, minDistance
-                    ) {
-                        pilotListener.didUpdateLocation(it)
-                    }
-                }
-            }
-        }
+        compass.requestLocationUpdates(minTime, minDistance)
+    }
+
+    private fun actStepDown() {
+        compass.removeListener(compassListener)
+        context.unbindService(connection)
     }
 
 
     /** ----------------------------------------------------------------------------------------------------- **/
 
-    private fun checkPermission(): Boolean {
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return false
+    private val connection: ServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            val binder: Compass.ServiceBinder = service as Compass.ServiceBinder
+            compass = binder.compass
+            compass.setListener(compassListener)
+            pilotListener.onCompassConnected()
         }
-        return true
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            pilotListener.onCompassDisconnected()
+        }
+
+    }
+
+    private val compassListener: CompassListener = object : CompassListener {
+        override fun didUpdateLocation(location: Location) {
+            pilotListener.didUpdateLocation(location)
+        }
     }
 
     /** ----------------------------------------------------------------------------------------------------- **/
 
-    fun beSetListener(listener: PilotInterface) {
-        tell { actSetListener(listener) }
+    fun beComeOn(listener: PilotInterface) {
+        tell { actComeOn(listener) }
     }
 
     fun beCheckPermission() {
@@ -99,5 +91,9 @@ class Pilot constructor(private val context: Context) : Actor() {
 
     fun beRequestLocationUpdates(minTime: Long, minDistance: Float) {
         tell { actRequestLocationUpdates(minTime, minDistance) }
+    }
+
+    fun beStepDown() {
+        tell { actStepDown() }
     }
 }

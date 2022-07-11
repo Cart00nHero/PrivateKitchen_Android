@@ -5,7 +5,7 @@ import android.os.Bundle
 import com.cartoonhero.privatekitchen_android.R
 import com.cartoonhero.privatekitchen_android.actors.archmage.Spell
 import com.cartoonhero.privatekitchen_android.actors.archmage.Teleporter
-import com.cartoonhero.privatekitchen_android.stage.scenarios.MapScenario
+import com.cartoonhero.privatekitchen_android.stage.scenarios.map.MapScenario
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
