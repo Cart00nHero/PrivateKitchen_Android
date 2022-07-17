@@ -1,5 +1,6 @@
 package com.cartoonhero.privatekitchen_android.stage.scene.dashboard
 
+import com.cartoonhero.privatekitchen_android.actors.archmage.Teleporter
 import com.cartoonhero.privatekitchen_android.props.entities.FlowStep
 import com.cartoonhero.privatekitchen_android.props.entities.LocalizedText
 import com.cartoonhero.privatekitchen_android.props.entities.OrderInfo
@@ -9,7 +10,7 @@ import com.cartoonhero.privatekitchen_android.props.obEntities.ObWorkflow
 import java.util.*
 
 interface DashboardDirector {
-    fun beShowTime()
+    fun beShowTime(teleport: Teleporter)
     fun beCollectParcels(complete: (() -> Unit)?)
     fun beLocal(
         utcText: String, idx: Int, format: String,

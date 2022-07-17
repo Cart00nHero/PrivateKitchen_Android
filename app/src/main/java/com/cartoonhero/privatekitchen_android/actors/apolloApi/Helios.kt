@@ -340,7 +340,7 @@ class Helios(private val served: Scenario) : Actor() {
     private fun actSearchMatchTimeOrders(
         startDate: Date?, endDate: Date?,
         queries: QueryOrder,
-        complete: (ApiStatus, SearchMatchTimeOrdersQuery.Data?) -> Unit
+        complete: (ApiStatus, List<SearchMatchTimeOrdersQuery.SearchMatchTimeOrder?>?) -> Unit
     ) {
         if (startDate == null && endDate == null) return
         apiScope.launch {
@@ -361,7 +361,7 @@ class Helios(private val served: Scenario) : Actor() {
                                 complete(ApiStatus.FAILED, null)
                             }
                             else -> {
-                                complete(ApiStatus.SUCCESS, response.data)
+                                complete(ApiStatus.SUCCESS, response.data?.searchMatchTimeOrders)
                             }
                         }
                     }
@@ -723,7 +723,7 @@ class Helios(private val served: Scenario) : Actor() {
     fun beSearchMatchTimeOrders(
         startDate: Date?, endDate: Date?,
         queries: QueryOrder,
-        complete: (ApiStatus, SearchMatchTimeOrdersQuery.Data?) -> Unit
+        complete: (ApiStatus, List<SearchMatchTimeOrdersQuery.SearchMatchTimeOrder?>?) -> Unit
     ) {
         tell { actSearchMatchTimeOrders(startDate, endDate, queries, complete) }
     }
