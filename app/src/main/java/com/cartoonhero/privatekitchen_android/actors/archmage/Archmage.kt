@@ -8,8 +8,8 @@ import org.reduxkotlin.createThreadSafeStore
 @ExperimentalCoroutinesApi
 @ObsoleteCoroutinesApi
 class Archmage(private val destination: Scenario) : Actor() {
-    private var teleportations: HashSet<Teleporter> = hashSetOf()
-    private var wayPoints: HashSet<Teleporter> = hashSetOf()
+    private val teleportations: HashSet<Teleporter> = hashSetOf()
+    private val wayPoints: HashSet<Teleporter> = hashSetOf()
     private val wand = Teleportation.portal
     private val unsubscribe = wand.subscribe { newState(wand.state) }
 
@@ -49,27 +49,19 @@ class Archmage(private val destination: Scenario) : Actor() {
     /** ----------------------------------------------------------------------------------------------------- **/
 
     fun beSetTeleportation(teleporter: Teleporter) {
-        tell {
-            actSetTeleportation(teleporter)
-        }
+        tell { actSetTeleportation(teleporter) }
     }
 
     fun beSetWaypoint(wayPoint: Teleporter) {
-        tell {
-            actSetWaypoint(wayPoint)
-        }
+        tell { actSetWaypoint(wayPoint) }
     }
 
     fun beChant(spell: Spell) {
-        tell {
-            actChant(spell)
-        }
+        tell { actChant(spell) }
     }
 
     fun beShutOff() {
-        tell {
-            actShutOff()
-        }
+        tell { actShutOff() }
     }
 
     private object Teleportation {

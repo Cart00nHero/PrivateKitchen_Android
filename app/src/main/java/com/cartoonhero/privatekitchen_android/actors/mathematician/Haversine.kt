@@ -1,6 +1,6 @@
 package com.cartoonhero.privatekitchen_android.actors.mathematician
 
-import android.location.Location
+import com.google.android.gms.maps.model.LatLng
 import kotlin.math.PI
 import kotlin.math.asin
 import kotlin.math.cos
@@ -14,22 +14,22 @@ data class Boundary(
 )
 class Haversine {
     private val earthRadius = 6371.0
-    fun calculateRange(location:Location, range: Float): Boundary {
-        val dLng = dLongitude(location,range)
-        val dLat = dLatitude(location, range)
-        val maxLat = location.latitude + dLat
-        val minLat = location.latitude - dLat
-        val maxLng = location.longitude + dLng
-        val minLng = location.longitude - dLng
+    fun calculateRange(center: LatLng, range: Double): Boundary {
+        val dLng = dLongitude(center,range)
+        val dLat = dLatitude(range)
+        val maxLat = center.latitude + dLat
+        val minLat = center.latitude - dLat
+        val maxLng = center.longitude + dLng
+        val minLng = center.longitude - dLng
 
         return Boundary(maxLat,maxLng,minLat,minLng)
     }
-    private fun dLongitude(location:Location, range: Float): Double {
+    private fun dLongitude(center: LatLng, range: Double): Double {
         val dLng =
-            2 * asin(sin(range/(2*earthRadius)/ cos(deg2rad(location.latitude))))
+            2 * asin(sin(range/(2 * earthRadius)/ cos(deg2rad(center.latitude))))
         return rad2deg(dLng)
     }
-    private fun dLatitude(location:Location, range: Float): Double {
+    private fun dLatitude(range: Double): Double {
         val dLat = range / earthRadius
         return rad2deg(dLat)
     }

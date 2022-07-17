@@ -96,7 +96,7 @@ class Icarus(private val served: Scenario) : Actor() {
     }
     private fun actSearchMatchedAddress(
         queries: QueryAddress,
-        complete: (ApiStatus, SearchMatchedAddressesQuery.Data?) -> Unit
+        complete: (ApiStatus, List<SearchMatchedAddressesQuery.SearchMatchedAddress?>?) -> Unit
     ) {
         apiScope.launch {
             val query = SearchMatchedAddressesQuery(queries = queries)
@@ -104,10 +104,10 @@ class Icarus(private val served: Scenario) : Actor() {
             served.tell {
                 when {
                     response.hasErrors() -> {
-                        complete(ApiStatus.FAILED, null)
+                        complete(ApiStatus.FAILED, listOf())
                     }
                     else -> {
-                        complete(ApiStatus.SUCCESS, response.data)
+                        complete(ApiStatus.SUCCESS, response.data?.searchMatchedAddresses)
                     }
                 }
             }
@@ -400,7 +400,7 @@ class Icarus(private val served: Scenario) : Actor() {
     }
     fun beSearchMatchedAddress(
         queries: QueryAddress,
-        complete: (ApiStatus, SearchMatchedAddressesQuery.Data?) -> Unit
+        complete: (ApiStatus, List<SearchMatchedAddressesQuery.SearchMatchedAddress?>?) -> Unit
     ) {
         tell { actSearchMatchedAddress(queries, complete) }
     }
