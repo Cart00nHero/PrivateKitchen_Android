@@ -67,3 +67,8 @@ data class Choice(
     var cost: Double? = 0.0,
     var choices: List<GQOption>? = listOf()
 )
+
+data class FlowStep(
+    var flow: Workflow = Workflow(),
+    var odrForms: List<OrderForm> = listOf()
+)

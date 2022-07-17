@@ -2,6 +2,7 @@ package com.cartoonhero.privatekitchen_android.actors.mathematician
 
 import android.location.Location
 import com.cartoonhero.theatre.Actor
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
@@ -10,16 +11,16 @@ import kotlinx.coroutines.ObsoleteCoroutinesApi
 @ObsoleteCoroutinesApi
 class Mathematician : Actor() {
 
-    private fun actHaversine(location: Location, range: Float): Boundary {
-        return Haversine().calculateRange(location, range)
+    private fun actHaversine(center: LatLng, range: Double): Boundary {
+        return Haversine().calculateRange(center, range)
     }
 
     /** ----------------------------------------------------------------------------------------------------- **/
 
-    suspend fun beHaversine(location: Location, range: Float): Boundary {
+    suspend fun beHaversine(center: LatLng, range: Double): Boundary {
         val actorJob = CompletableDeferred<Boundary>()
         tell {
-            actorJob.complete(actHaversine(location, range))
+            actorJob.complete(actHaversine(center, range))
         }
         return actorJob.await()
     }

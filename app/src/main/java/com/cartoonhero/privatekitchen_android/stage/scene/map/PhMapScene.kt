@@ -1,10 +1,13 @@
 package com.cartoonhero.privatekitchen_android.stage.scene.map
 
+import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.cartoonhero.privatekitchen_android.R
+import com.cartoonhero.privatekitchen_android.actors.archmage.LiveScene
 import com.cartoonhero.privatekitchen_android.actors.archmage.Spell
 import com.cartoonhero.privatekitchen_android.actors.archmage.Teleporter
+import com.cartoonhero.privatekitchen_android.props.entities.PlaceMarker
 import com.cartoonhero.privatekitchen_android.stage.scenarios.map.MapScenario
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -24,7 +27,24 @@ class PhMapScene : AppCompatActivity(), OnMapReadyCallback {
 
     private val waypoint: Teleporter = object : Teleporter {
         override fun beSpellCraft(spell: Spell) {
-            TODO("Not yet implemented")
+            if (spell is LiveScene) {
+                when(val prop = spell.prop) {
+                    is Location -> {
+                        val sydney = LatLng(prop.latitude, prop.longitude)
+                        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+                    }
+                    is List<*> -> {
+                        mMap.clear()
+                        val markers: List<PlaceMarker> = prop.filterIsInstance<PlaceMarker>()
+                        markers.forEach {
+                            mMap.addMarker(
+                                MarkerOptions().position(it.coordinate)
+                                    .title(it.name).snippet(it.addressText)
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -44,11 +64,10 @@ class PhMapScene : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        mMap.setOnMarkerClickListener {
+            true
+        }
 
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
     }
 
     override fun onDestroy() {
