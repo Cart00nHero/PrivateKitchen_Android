@@ -12,3 +12,7 @@ data class EditMenuComplete(
 data class CorrectCompletion(
     val completed: Boolean = true
 )
+
+data class ShopOpenedEvent(
+    val opened: Boolean
+)

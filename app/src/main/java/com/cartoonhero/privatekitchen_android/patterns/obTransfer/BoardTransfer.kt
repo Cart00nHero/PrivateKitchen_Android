@@ -34,7 +34,7 @@ class BoardTransfer(attach: Scenario) : Pattern(attach) {
         flowBox.removeAll()
         bBox.removeAll()
     }
-    suspend fun startTransfer(): ObDashboard? {
+    private suspend fun startTransfer(): ObDashboard? {
         val flows: List<Workflow> = fromObj.steps ?: listOf()
         val  obFlows: MutableList<ObWorkflow> = mutableListOf()
         for (i in flows.indices) {

@@ -72,3 +72,8 @@ data class FlowStep(
     var flow: Workflow = Workflow(),
     var odrForms: List<OrderForm> = listOf()
 )
+
+data class FormMoveRecord(
+    val fromFlow: FlowStep,
+    val toStep: Int
+)
