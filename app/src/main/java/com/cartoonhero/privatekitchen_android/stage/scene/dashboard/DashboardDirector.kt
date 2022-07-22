@@ -25,17 +25,19 @@ interface DashboardDirector {
 }
 
 interface BoardPanelDirector {
+    fun beShowTime(teleport: Teleporter)
     fun beCollect()
-    fun beParse(close: Date, complete: (String) -> Unit)
-    fun beSave(flows: List<ObWorkflow>, complete: (() -> Unit)?)
+    fun beParseCloseDate(close: Date, complete: (String) -> Unit)
+    fun beSaveFlows(flows: List<ObWorkflow>, complete: (() -> Unit)?)
     fun beTomorrow(complete: (Date) -> Unit)
-    fun beSet(
+    fun beSetCloseTime(
         closeTime: String, recall: Int,
         complete: ((List<Boolean>, String) -> Void)?
     )
 }
 
 interface LookOverDirector {
+    fun beShowTime(teleport: Teleporter)
     fun beCollectParcels()
     fun beParseInfo(
         form: ObOrderForm,
@@ -53,4 +55,5 @@ interface LookOverDirector {
     fun bePrevious()
     fun beMoveForm(toState: Int)
     fun beBuildMenuSource(complete: (List<Int>) -> Unit)
+    fun beLowerCurtain()
 }

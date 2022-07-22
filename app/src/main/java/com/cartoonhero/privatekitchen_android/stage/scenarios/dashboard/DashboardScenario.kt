@@ -24,7 +24,6 @@ import com.cartoonhero.theatre.Courier
 import com.cartoonhero.theatre.Scenario
 import graphqlApollo.operation.FindDashboardQuery
 import graphqlApollo.operation.FindOrderFormQuery
-import graphqlApollo.operation.SearchMatchTimeOrdersQuery
 import graphqlApollo.operation.type.QueryOrder
 import io.objectbox.kotlin.and
 import kotlinx.coroutines.*
@@ -40,7 +39,7 @@ class DashboardScenario : Scenario(), DashboardDirector {
     private val shopIncome: String = "ShopIncome"
     private var station: ObWorkstation? = null
     private var stationId: String = ""
-    var dashboard: Dashboard? = null
+    private lateinit var dashboard: Dashboard
 
     private fun actShowTime(teleport: Teleporter) {
         archmage.beSetWaypoint(teleport)
@@ -90,7 +89,7 @@ class DashboardScenario : Scenario(), DashboardDirector {
         val recipient = "LookOverScenario"
         launch {
             val courier = Courier(this@DashboardScenario)
-            val totalSteps: Int = dashboard?.steps?.size ?: 0
+            val totalSteps: Int = dashboard.steps?.size ?: 0
             val numbers: Map<String, Int> = mapOf(
                 ("selectedIdx" to selected),
                 ("totalSteps" to totalSteps)
@@ -104,7 +103,7 @@ class DashboardScenario : Scenario(), DashboardDirector {
     }
 
     private fun actPanel(action: Int, complete: (() -> Unit)?) {
-        val recipient: String = "BoardPanelScenario"
+        val recipient = "BoardPanelScenario"
         val courier = Courier(this@DashboardScenario)
         when (action) {
             0 -> launch {
@@ -191,7 +190,7 @@ class DashboardScenario : Scenario(), DashboardDirector {
     private fun queryAllOrders() {
         val queryJob: Deferred<Map<Int, List<OrderForm>>> = async {
             val result: MutableMap<Int, List<OrderForm>> = mutableMapOf()
-            val stepCount: Int = dashboard?.steps?.size ?: 0
+            val stepCount: Int = dashboard.steps?.size ?: 0
             val fBox = ObDb().beTakeBox(ObOrderForm::class.java)
             for (i in 0 until stepCount) {
                 val query = fBox.query(
@@ -217,7 +216,7 @@ class DashboardScenario : Scenario(), DashboardDirector {
         val openDate: String = sharedPrefs.getString(openTimeUDKey, "") ?: ""
         val open: Date = TimeGuardian().beTextTo(openDate, formatYMdHm, TimeZone.getDefault())
         val close: Date = TimeGuardian().beTextTo(
-            dashboard?.closeTime ?: "",
+            dashboard.closeTime ?: "",
             formatYMdHm, TimeZone.getDefault()
         )
         if (close > Date()) {
@@ -229,9 +228,7 @@ class DashboardScenario : Scenario(), DashboardDirector {
                 when (status) {
                     ApiStatus.SUCCESS -> launch {
                         if (respData != null) {
-                            val formList: List<OrderForm> = Transformer().beListTo<
-                                    SearchMatchTimeOrdersQuery.SearchMatchTimeOrder?,
-                                    OrderForm>(respData) ?: listOf()
+                            val formList: List<OrderForm> = Transformer().beListTo(respData) ?: listOf()
                             val forms: MutableList<OrderForm> = formList.toMutableList()
                             forms.removeIf { it.arrival == null }
                             tell { complete(forms) }
@@ -246,15 +243,13 @@ class DashboardScenario : Scenario(), DashboardDirector {
     }
 
     private suspend fun shopOpened(): Boolean {
-        if (dashboard != null) {
-            val close: Date = TimeGuardian().beTextTo(
-                dashboard!!.closeTime ?: "",
-                formatYMdHm, TimeZone.getDefault()
-            )
-            if (close > Date()) {
-                archmage.beChant(LiveScene(prop = ShopOpenedEvent(true)))
-                return true
-            }
+        val close: Date = TimeGuardian().beTextTo(
+            dashboard.closeTime ?: "",
+            formatYMdHm, TimeZone.getDefault()
+        )
+        if (close > Date()) {
+            archmage.beChant(LiveScene(prop = ShopOpenedEvent(true)))
+            return true
         }
         return false
     }
@@ -301,7 +296,7 @@ class DashboardScenario : Scenario(), DashboardDirector {
                     openDate, formatYMdHm, TimeZone.getDefault()
                 )
                 val close: Date = TimeGuardian().beTextTo(
-                    dashboard?.closeTime ?: "",
+                    dashboard.closeTime ?: "",
                     formatYMdHm, TimeZone.getDefault()
                 )
                 if (close > Date()) {
@@ -321,9 +316,7 @@ class DashboardScenario : Scenario(), DashboardDirector {
                 ApiStatus.SUCCESS -> {
                     if (respData != null) {
                         val parseJob: Deferred<List<OrderForm>> = async {
-                            val forms: List<OrderForm> = Transformer().beListTo<
-                                    SearchMatchTimeOrdersQuery.SearchMatchTimeOrder?,
-                                    OrderForm>(respData) ?: listOf()
+                            val forms: List<OrderForm> = Transformer().beListTo(respData) ?: listOf()
                             forms
                         }
                         launch {
